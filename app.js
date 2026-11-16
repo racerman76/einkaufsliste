@@ -212,7 +212,9 @@ $('setDlg').addEventListener('close', () => {
 $('copyLink').onclick = async () => {
   const c = { owner: $('cfgOwner').value.trim(), repo: $('cfgRepo').value.trim(), token: $('cfgToken').value.trim() };
   if (!c.owner || !c.repo || !tokenOk(c.token)) return alert('Erst Konto, Repo und ein gültiges Token (github_pat_…) eintragen.');
-  const link = location.origin + location.pathname + '#setup=' + btoa(unescape(encodeURIComponent(JSON.stringify(c))));
+  // In der Android-App ist die Adresse "localhost" – dann auf die GitHub-Pages-Adresse verlinken
+  const base = location.hostname.endsWith('.github.io') ? location.origin + location.pathname : `https://${c.owner}.github.io/einkaufsliste/`;
+  const link = base + '#setup=' + btoa(unescape(encodeURIComponent(JSON.stringify(c))));
   try { await navigator.clipboard.writeText(link); alert('Link kopiert. Nur an Familienmitglieder schicken – er enthält das Token.'); }
   catch { prompt('Link kopieren:', link); }
 };
@@ -221,6 +223,12 @@ window.addEventListener('online', () => sync());
 document.addEventListener('visibilitychange', () => { if (!document.hidden) sync(); });
 setInterval(() => { if (!document.hidden) sync(); }, 20000);
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {}); // in der Android-App gibt es kein sw.js
+
+// Android-App: beim Bauen eingebauter Einrichtungslink (preset.json, nur in der APK vorhanden)
+if (!cfg.token) try {
+  const r = await fetch('preset.json');
+  if (r.ok) { cfg = { ...parseSetup((await r.json()).link), user: cfg.user || '' }; localStorage.setItem('ek-cfg', JSON.stringify(cfg)); }
+} catch {}
 
 render();
 if (!cfg.token) $('settingsBtn').click(); else sync();
