@@ -3,6 +3,16 @@
 // Aus diesen Texten entstehen die Release-Beschreibungen auf GitHub und das Fenster „Neuigkeiten“ in der App.
 export const AENDERUNGEN = [
   {
+    version: '1.8.0', titel: 'Symbol-Auswahl selbst anpassen',
+    punkte: [
+      'In der Symbol-Auswahl 🧺 schaltet ✎ in den Bearbeiten-Modus. Ein Eintrag lässt sich dann umbenennen, mit anderem Symbol versehen oder einer anderen Kategorie zuordnen.',
+      'Einträge, die ihr nie braucht, lassen sich aus der Auswahl entfernen – auch selbst eingetippte Artikel unter „Eigene Artikel“.',
+      '„＋ Neuen Eintrag anlegen“ fügt eigene Artikel mit Symbol dauerhaft zur Auswahl hinzu.',
+      'Ausgeblendete Einträge lassen sich zurückholen, und „Ganze Auswahl auf Standard zurücksetzen“ verwirft alle Änderungen.',
+      'Die Anpassungen werden über GitHub abgeglichen und gelten auf allen Geräten der Familie.',
+    ],
+  },
+  {
     version: '1.7.2', titel: 'Fenster verschieben',
     punkte: [
       'Die Fenster „Artikel ändern“, „Einstellungen“, „Listen“ und „Neuigkeiten“ lassen sich verschieben: am Titel mit dem Griff ⠿ ziehen, mit dem Finger oder der Maus.',

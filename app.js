@@ -1,7 +1,7 @@
 import { merge, sameDoc, emptyDoc } from './merge.js';
 import { SORTS, catOrder, ordnen, verschieben } from './sort.js';
 import { VERSION, neuer } from './version.js';
-import { CATALOG, iconFor, findCatalog } from './catalog.js';
+import { KAT_LISTE, wirksamerKatalog, sucheKat, symbolFuer, eigeneArtikel, ausgeblendet } from './catalog.js';
 import { AENDERUNGEN } from './changelog.js';
 
 const CATS = ['Obst & Gemüse', 'Brot & Backwaren', 'Kühlregal', 'Fleisch & Fisch', 'Tiefkühl',
@@ -66,7 +66,7 @@ function addItem(name, qty, cat) {
 function lastCat(name) {
   let best = null;
   for (const i of Object.values(doc.items))
-    if (i.name.toLowerCase() === name.toLowerCase() && (!best || i.updatedAt > best.updatedAt)) best = i;
+    if (i.listId !== KAT_LISTE && i.name.toLowerCase() === name.toLowerCase() && (!best || i.updatedAt > best.updatedAt)) best = i;
   return best?.cat;
 }
 
@@ -87,11 +87,13 @@ function row(i) {
   const name = el('button', { type: 'button', className: 'name', textContent: i.name, title: 'Ändern', ariaLabel: i.name + ' ändern' });
   name.onclick = () => editItem(i);
   if (i.by && i.by !== cfg.user) name.append(el('span', { className: 'by', textContent: i.by }));
-  const ic = el('span', { className: 'ic', textContent: iconFor(i.name, i.cat), ariaHidden: 'true' });
+  const ic = el('span', { className: 'ic', textContent: symbolFuer(KAT, i.name, i.cat), ariaHidden: 'true' });
   return el('div', { className: 'item' }, cb, ic, name, qty, del);
 }
 
+let KAT = wirksamerKatalog(doc.items);
 function render() {
+  KAT = wirksamerKatalog(doc.items);
   ensureList();
   $('listSel').replaceChildren(...lists().map(l => el('option', { value: l.id, textContent: l.name, selected: l.id === cur })));
   const all = items();
@@ -125,7 +127,7 @@ function editItem(i) {
   $('editDlg').returnValue = ''; // sonst gilt bei Esc/Zurück noch der Knopf vom letzten Mal
   $('editDlg').showModal();
 }
-$('edName').addEventListener('input', e => { const c = findCatalog(e.target.value)?.cat; if (c) $('edCat').value = c; });
+$('edName').addEventListener('input', e => { const c = sucheKat(KAT, e.target.value)?.cat; if (c) $('edCat').value = c; });
 $('editDlg').addEventListener('close', () => {
   const i = editing; editing = null;
   if (!i) return;
@@ -137,38 +139,80 @@ $('editDlg').addEventListener('close', () => {
 });
 
 // ---------- Symbol-Auswahl ----------
-// Kachel antippen: Artikel auf die Liste; ist er schon offen drauf, wieder entfernen
+// Normal: Kachel antippen = Artikel auf die Liste (nochmal = wieder runter).
+// Bearbeiten-Modus (✎): Kachel antippen = Eintrag der Auswahl ändern, ausblenden oder neu anlegen.
+let pickEdit = false;
 function renderPicker() {
   const q = $('pickSearch').value.trim().toLowerCase();
   const offen = new Map(items().filter(i => !i.done).map(i => [i.name.toLowerCase(), i]));
-  // Eigene Artikel (nicht im Katalog), zuletzt benutzte zuerst
-  const eigene = new Map();
-  for (const i of Object.values(doc.items).sort((a, b) => b.updatedAt - a.updatedAt))
-    if (!findCatalog(i.name) && !eigene.has(i.name.toLowerCase())) eigene.set(i.name.toLowerCase(), { name: i.name, cat: i.cat || 'Sonstiges' });
-  const alle = [...[...eigene.values()].slice(0, 24).map(e => ({ ...e, eigen: true })), ...CATALOG]
-    .filter(e => !q || e.name.toLowerCase().includes(q));
+  const alle = [...eigeneArtikel(doc.items, KAT), ...KAT].filter(e => !q || e.name.toLowerCase().includes(q));
+  $('pickEdit').classList.toggle('on', pickEdit);
+  $('pickEdit').ariaPressed = String(pickEdit);
+  $('pickDlg').classList.toggle('bearbeiten', pickEdit);
+  $('pickHint').textContent = pickEdit
+    ? 'Bearbeiten: Eintrag antippen zum Ändern oder Ausblenden · ✎ beendet'
+    : 'Antippen = auf die Liste · nochmal antippen = wieder runter · ✎ = Auswahl bearbeiten';
   const tile = e => {
-    const on = offen.get(e.name.toLowerCase());
+    const on = !pickEdit && offen.get(e.name.toLowerCase());
     const b = el('button', { type: 'button', className: 'tile' + (on ? ' on' : ''), ariaPressed: on ? 'true' : 'false' },
-      el('span', { className: 'ic', textContent: e.icon || iconFor(e.name, e.cat) }), el('span', { textContent: e.name }));
-    b.onclick = () => on ? touch(on, { deleted: true }) : addItem(e.name, '', e.cat);
+      el('span', { className: 'ic', textContent: e.icon || symbolFuer(KAT, e.name, e.cat) }), el('span', { textContent: e.name }));
+    b.onclick = () => pickEdit ? katBearbeiten(e) : on ? touch(on, { deleted: true }) : addItem(e.name, '', e.cat);
     return b;
   };
   const gruppen = [['Eigene Artikel', alle.filter(e => e.eigen)],
-    ...catOrder(doc.lists[cur], CATS).map(c => [c, alle.filter(e => !e.eigen && e.cat === c)])];
+    ...catOrder(doc.lists[cur], CATS).map(c => [c, alle.filter(e => !e.eigen && (CATS.includes(e.cat) ? e.cat : 'Sonstiges') === c)])];
   const teile = gruppen.filter(([, g]) => g.length)
     .flatMap(([c, g]) => [el('h3', { textContent: c }), el('div', { className: 'tiles' }, ...g.map(tile))]);
-  // Suchbegriff ohne Treffer: als neuen Artikel anbieten
-  if (q && !alle.some(e => e.name.toLowerCase() === q)) {
-    const neu = el('button', { type: 'button', className: 'secondary', textContent: `„${$('pickSearch').value.trim()}“ hinzufügen` });
-    neu.onclick = () => { addItem($('pickSearch').value, '', 'Sonstiges'); $('pickSearch').value = ''; renderPicker(); };
-    teile.unshift(neu);
+  const knopf = (text, fn, cls = 'secondary wide') => { const k = el('button', { type: 'button', className: cls, textContent: text }); k.onclick = fn; return k; };
+  if (pickEdit) {
+    teile.unshift(knopf('＋ Neuen Eintrag anlegen', () => katBearbeiten({ name: $('pickSearch').value.trim(), cat: 'Sonstiges', neu: true }), 'primary wide'));
+    const aus = ausgeblendet(doc.items);
+    if (aus.length) teile.push(knopf(`Ausgeblendete zurückholen (${aus.length})`, () => {
+      for (const o of aus) touch(o, { deleted: true });
+    }));
+    if (katEintraegeAnzahl()) teile.push(knopf('Ganze Auswahl auf Standard zurücksetzen', () => {
+      if (!confirm('Alle Änderungen an der Auswahl verwerfen? Umbenennungen, eigene Einträge und Ausblendungen gehen verloren.')) return;
+      for (const o of Object.values(doc.items)) if (o.listId === KAT_LISTE && !o.deleted) touch(o, { deleted: true });
+    }, 'danger wide'));
+  } else if (q && !alle.some(e => e.name.toLowerCase() === q)) {
+    // Suchbegriff ohne Treffer: als neuen Artikel anbieten
+    teile.unshift(knopf(`„${$('pickSearch').value.trim()}“ hinzufügen`, () => {
+      addItem($('pickSearch').value, '', 'Sonstiges'); $('pickSearch').value = ''; renderPicker();
+    }));
   }
   $('pickGrid').replaceChildren(...teile);
 }
-$('pickBtn').onclick = () => { $('pickSearch').value = ''; renderPicker(); $('pickDlg').showModal(); };
+const katEintraegeAnzahl = () => Object.values(doc.items).filter(o => o.listId === KAT_LISTE && !o.deleted).length;
+$('pickBtn').onclick = () => { $('pickSearch').value = ''; pickEdit = false; renderPicker(); $('pickDlg').showModal(); };
 $('pickSearch').oninput = renderPicker;
+$('pickEdit').onclick = () => { pickEdit = !pickEdit; renderPicker(); };
 $('pickDone').onclick = () => $('pickDlg').close();
+
+// Eintrag der Auswahl bearbeiten (Fenster „Auswahl-Eintrag“)
+let katAktuell = null;
+function katBearbeiten(e) {
+  katAktuell = e;
+  $('katHead').textContent = e.neu ? 'Neuer Eintrag' : 'Auswahl-Eintrag ändern';
+  $('katName').value = e.name || ''; $('katIcon').value = e.neu ? '' : (e.icon || symbolFuer(KAT, e.name, e.cat));
+  $('katCat').replaceChildren(...catOrder(doc.lists[cur], CATS).map(c => el('option', { value: c, textContent: c })));
+  $('katCat').value = CATS.includes(e.cat) ? e.cat : 'Sonstiges';
+  $('katDel').hidden = !!e.neu;
+  $('katDlg').returnValue = '';
+  $('katDlg').showModal();
+}
+$('katDlg').addEventListener('close', () => {
+  const e = katAktuell; katAktuell = null;
+  const r = $('katDlg').returnValue;
+  if (!e || (r !== 'save' && r !== 'aus')) return;
+  const name = $('katName').value.trim();
+  if (r === 'save' && !name) return;
+  const basis = e.neu ? name.toLowerCase() : e.basis;
+  const id = 'kat:' + basis;
+  const alt = doc.items[id];
+  const rec = alt && !alt.deleted ? alt : (doc.items[id] = { id, listId: KAT_LISTE, basis, created: Date.now() });
+  if (r === 'aus') return touch(rec, { aus: true, deleted: false });
+  touch(rec, { name, icon: $('katIcon').value.trim() || undefined, cat: $('katCat').value, aus: false, deleted: false });
+});
 
 function status(kind, text) { $('syncDot').className = 'dot ' + kind; $('syncText').textContent = text; }
 
@@ -220,7 +264,7 @@ async function sync() {
 }
 
 // ---------- Bedienung ----------
-$('name').addEventListener('input', e => { const v = e.target.value.trim(); const c = lastCat(v) || findCatalog(v)?.cat; if (c) $('cat').value = c; });
+$('name').addEventListener('input', e => { const v = e.target.value.trim(); const c = lastCat(v) || sucheKat(KAT, v)?.cat; if (c) $('cat').value = c; });
 $('addForm').onsubmit = e => {
   e.preventDefault();
   addItem($('name').value, $('qty').value.trim(), $('cat').value);
@@ -399,7 +443,7 @@ function verschiebbar(dlg) {
   new MutationObserver(() => { if (dlg.open) requestAnimationFrame(() => setze(x, y)); })
     .observe(dlg, { attributes: true, attributeFilter: ['open'] });
 }
-['editDlg', 'setDlg', 'listDlg', 'newsDlg'].forEach(id => verschiebbar($(id)));
+['editDlg', 'setDlg', 'listDlg', 'newsDlg', 'katDlg'].forEach(id => verschiebbar($(id)));
 
 render();
 if (!cfg.token) $('settingsBtn').click(); else sync();

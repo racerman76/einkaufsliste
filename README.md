@@ -39,7 +39,7 @@ Das Token kann nur dieses eine Repo lesen und schreiben, sonst nichts.
 
 ## Bedienung
 - Artikel eintippen, Menge und Kategorie wählen, **+**. Die Kategorie wird beim nächsten Mal für denselben Artikel vorgeschlagen.
-- Oder 🧺 antippen und Artikel per Symbol auswählen. Nochmal antippen nimmt den Artikel wieder von der Liste; eigene Artikel erscheinen dort ebenfalls, Suche oben.
+- Oder 🧺 antippen und Artikel per Symbol auswählen. Nochmal antippen nimmt den Artikel wieder von der Liste. Mit ✎ lässt sich die Auswahl selbst anpassen (umbenennen, Symbol, Kategorie, ausblenden, neue Einträge, Standard wiederherstellen) – gilt für alle Geräte.
 - Haken setzen → Artikel wandert nach „Im Wagen“. Gleichen Artikel erneut hinzufügen holt ihn zurück.
 - Artikelname oder Menge antippen zum Ändern (Name, Menge, Kategorie), ✕ zum Löschen.
 - ☰ → Reihenfolge der Liste wählen (nach Kategorie, alphabetisch, neueste oder älteste zuerst). Bei „Nach Kategorie“ die Kategorien mit ↑ ↓ so ordnen, wie du durch den Laden gehst – jede Liste hat ihre eigene Reihenfolge. Außerdem: neue Liste, umbenennen, löschen.
@@ -49,7 +49,7 @@ Das Token kann nur dieses eine Repo lesen und schreiben, sonst nichts.
 - **Offline:** Alles funktioniert weiter, Änderungen werden später automatisch übertragen. Ändern zwei Geräte denselben Artikel, gewinnt die zuletzt gemachte Änderung.
 - **Einrichtungslink enthält das Token.** Nur an Familienmitglieder schicken. Wenn er in falsche Hände gerät: Token auf GitHub löschen, neues erstellen, neu verteilen.
 - **Verlauf:** Jede Änderung ist ein Commit im Daten-Repo – damit lässt sich notfalls jeder frühere Stand wiederherstellen.
-- **Updates der App:** Nach Code-Änderungen in `sw.js` die Versionsnummer `einkauf-v16` hochzählen, sonst hängen Handys an der alten Version.
+- **Updates der App:** Nach Code-Änderungen in `sw.js` die Versionsnummer `einkauf-v17` hochzählen, sonst hängen Handys an der alten Version.
 - **Token-Ablauf:** Läuft das Token ab, zeigt die App „Token ungültig“. Neues Token erstellen und unter ⚙ eintragen.
 
 ## Dateien
@@ -66,7 +66,7 @@ Download: https://github.com/racerman76/einkaufsliste/releases/latest/download/E
 
 ## Versionen und Updates
 - Jede Version wird in `changelog.js` beschrieben (Titel + Stichpunkte, neueste oben). Daraus entstehen die Release-Texte auf GitHub und das Fenster „Neuigkeiten“ unter ⚙. Der Selbsttest prüft, dass der neueste Eintrag zur Nummer in `version.js` passt.
-- Die Versionsnummer steht in `version.js` (`VERSION = '1.7.2'`). **Bei jeder Änderung an der App hochzählen** – nur dann baut GitHub ein neues Release `v<Version>`. Änderungen ohne neue Nummer (z. B. nur README) erzeugen kein Release.
+- Die Versionsnummer steht in `version.js` (`VERSION = '1.8.0'`). **Bei jeder Änderung an der App hochzählen** – nur dann baut GitHub ein neues Release `v<Version>`. Änderungen ohne neue Nummer (z. B. nur README) erzeugen kein Release.
 - In der App unter ⚙ steht die aktuelle Version, dazu „Nach Updates suchen“. Beim Start prüft die App selbst und zeigt oben eine Leiste, wenn es eine neuere Version gibt:
   - **Android:** „Herunterladen“ lädt die neue APK im Browser – Datei antippen und über die alte installieren.
   - **iPhone/PC:** „Neu laden“ holt die neue Version.
