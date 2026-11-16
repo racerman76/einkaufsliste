@@ -1,5 +1,7 @@
 name: Android-App bauen
 
+# Ein neues Release (v<VERSION>) entsteht nur, wenn die Versionsnummer in version.js erhöht wurde.
+# Manuell gestartet ("Run workflow") wird immer gebaut; die APK der aktuellen Version wird dann ersetzt.
 on:
   push:
     branches: [main]
@@ -9,8 +11,34 @@ permissions:
   contents: write
 
 jobs:
-  apk:
+  pruefen:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      bauen: ${{ steps.v.outputs.bauen }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Versionsnummer lesen
+        id: v
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(sed -n "s/^export const VERSION = '\(.*\)';/\1/p" version.js)
+          [ -n "$VERSION" ] || { echo "::error::Keine VERSION in version.js"; exit 1; }
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          if gh release view "v$VERSION" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1 && [ "$GITHUB_EVENT_NAME" != workflow_dispatch ]; then
+            echo "bauen=nein" >> $GITHUB_OUTPUT
+            echo "::notice::Version $VERSION gibt es schon – kein neues Release. Für ein Update version.js hochzählen."
+          else
+            echo "bauen=ja" >> $GITHUB_OUTPUT
+          fi
+
+  apk:
+    needs: pruefen
+    if: needs.pruefen.outputs.bauen == 'ja'
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.pruefen.outputs.version }}
     steps:
       - uses: actions/checkout@v4
 
@@ -26,7 +54,7 @@ jobs:
       - name: Web-Dateien nach www kopieren
         run: |
           mkdir -p www
-          cp -r index.html app.js merge.js sort.js style.css manifest.webmanifest icons www/
+          cp -r index.html app.js merge.js sort.js version.js style.css manifest.webmanifest icons www/
 
       - name: Einrichtungslink einbauen (Secret EINRICHTUNGSLINK)
         env:
@@ -54,6 +82,8 @@ jobs:
             cp icons/icon-192.png $d/ic_launcher_round.png
           done
           sed -i -E "s/versionCode [0-9]+/versionCode ${{ github.run_number }}/" android/app/build.gradle
+          sed -i -E "s/versionName \"[^\"]*\"/versionName \"$VERSION\"/" android/app/build.gradle
+          grep -E "versionCode|versionName" android/app/build.gradle
 
       # Gleicher Signierschlüssel bei jedem Build, damit Updates über die alte Version passen.
       # shortcut: GitHub löscht den Cache nach 7 Tagen ohne Build – dann neuer Schlüssel, App einmal neu installieren.
@@ -71,11 +101,16 @@ jobs:
       - name: Als Release veröffentlichen
         env:
           GH_TOKEN: ${{ github.token }}
-          AENDERUNG: ${{ github.event.head_commit.message || 'Manuell gestartet' }}
+          AENDERUNG: ${{ github.event.head_commit.message || 'Manuell neu gebaut' }}
         run: |
           cp android/app/build/outputs/apk/debug/app-debug.apk Einkaufsliste.apk
-          gh release create "android-build-${{ github.run_number }}" Einkaufsliste.apk --latest \
-            --title "Android-App Build ${{ github.run_number }} ($(TZ=Europe/Berlin date '+%d.%m.%Y %H:%M'))" \
-            --notes "Änderung: $AENDERUNG
+          if gh release view "v$VERSION" >/dev/null 2>&1; then
+            gh release upload "v$VERSION" Einkaufsliste.apk --clobber
+          else
+            gh release create "v$VERSION" Einkaufsliste.apk --latest \
+              --title "Einkaufsliste $VERSION ($(TZ=Europe/Berlin date '+%d.%m.%Y'))" \
+              --notes "Änderung: $AENDERUNG
 
-          Auf dem Samsung herunterladen und über die alte Version installieren."
+          Android: herunterladen und über die alte Version installieren (oder in der App auf „Herunterladen“ tippen).
+          iPhone/PC: App neu öffnen bzw. in der App „Neu laden“."
+          fi
