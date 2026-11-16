@@ -1,0 +1,86 @@
+// Änderungsliste – neueste Version oben. Bei jeder neuen Version hier einen Eintrag ergänzen
+// und VERSION in version.js auf dieselbe Nummer setzen (der Selbsttest prüft das).
+// Aus diesen Texten entstehen die Release-Beschreibungen auf GitHub und das Fenster „Neuigkeiten“ in der App.
+export const AENDERUNGEN = [
+  {
+    version: '1.7.0', titel: 'Neuigkeiten in der App',
+    punkte: [
+      'Unter ⚙ gibt es jetzt „Neuigkeiten“: eine Übersicht aller Versionen mit ihren Änderungen.',
+      'Meldet die App ein Update, zeigt „Was ist neu?“ in der Update-Leiste vor dem Aktualisieren, was die neue Version bringt.',
+      'Die Beschreibungen der Versionen auf GitHub sind ausführlicher und stammen aus derselben Liste wie in der App.',
+    ],
+  },
+  {
+    version: '1.6.0', titel: 'Artikel auf der Liste bearbeiten',
+    punkte: [
+      'Name oder Menge eines Artikels antippen öffnet „Artikel ändern“ – dort lassen sich Name, Menge und Kategorie ändern.',
+      'Bei bekannten Artikeln passt sich die Kategorie beim Umbenennen von selbst an (aus „Milk“ wird „Milch“ im Kühlregal).',
+      'Im selben Fenster lässt sich der Artikel auch von der Liste löschen.',
+      'Ersetzt die bisherige Mengenabfrage über ein einfaches Eingabefenster.',
+    ],
+  },
+  {
+    version: '1.5.4', titel: 'Eigene Artikel ohne störende Vorschlagsliste eintippen',
+    punkte: [
+      'Die Vorschlagsliste unter dem Eingabefeld ist entfernt. Sie hat auf Android Tastatur und Knopf verdeckt, sodass sich eigene Artikel kaum hinzufügen ließen.',
+      'Die Tastatur zeigt „Fertig“ – damit wird der Artikel direkt auf die Liste gesetzt.',
+      'Vorschläge zum Antippen gibt es weiterhin in der Symbol-Auswahl 🧺, dort auch für selbst eingetippte Artikel.',
+    ],
+  },
+  {
+    version: '1.5.3', titel: 'Updates ohne Neuinstallation',
+    punkte: [
+      'Die Android-App wird ab dieser Version immer mit demselben Schlüssel signiert. Neue Versionen lassen sich direkt über die installierte App spielen, die Meldung „App nicht installiert“ tritt nicht mehr auf.',
+      'Einmalig: Wer von einer älteren Version kommt, muss die App vorher deinstallieren. Die Liste bleibt dabei erhalten, sie liegt auf GitHub.',
+    ],
+  },
+  {
+    version: '1.5.2', titel: 'Symbol-Auswahl erweitert',
+    punkte: [
+      'Neue Wurstsorten in „Fleisch & Fisch“: Aufschnitt, Salami, Bratwurst, Wiener und Leberwurst.',
+      '„Glühbirne“ heißt jetzt richtig „Glühlampe“.',
+    ],
+  },
+  {
+    version: '1.5.1', titel: 'Hinweis während des Update-Downloads',
+    punkte: [
+      'Nach „Herunterladen“ zeigt die Update-Leiste, dass der Download im Browser läuft, bis zu einer Minute dauern kann und wie danach installiert wird.',
+      'Der Knopf ist währenddessen gesperrt, damit der Download nicht mehrfach startet; nach einer Minute heißt er „Nochmal laden“.',
+    ],
+  },
+  {
+    version: '1.5.0', titel: 'Artikel per Symbol auswählen',
+    punkte: [
+      'Neuer Knopf 🧺 öffnet ein Raster mit rund 90 gängigen Artikeln mit Symbol, nach Kategorien in der Reihenfolge der Liste.',
+      'Antippen setzt einen Artikel auf die Liste, nochmal antippen nimmt ihn wieder herunter. Mit Suchfeld, eigenen Artikeln und „hinzufügen“ für Neues.',
+      'Jeder Artikel in der Liste zeigt jetzt sein Symbol.',
+      'Behoben: Die grüne Update-Leiste war in 1.4.0 auch ohne Update als leere Fläche zu sehen.',
+    ],
+  },
+  {
+    version: '1.4.0', titel: 'Versionsnummern und Update-Knopf',
+    punkte: [
+      'Unter ⚙ steht die Version der App, dazu „Nach Updates suchen“.',
+      'Beim Start prüft die App selbst und zeigt eine Leiste, wenn es eine neue Version gibt – Android lädt sie herunter, iPhone und PC laden neu.',
+      'Releases auf GitHub tragen jetzt Versionsnummern statt Build-Nummern.',
+    ],
+  },
+  {
+    version: '1.3', titel: 'Frühere Versionen (vor den Versionsnummern)', ohneRelease: true,
+    punkte: [
+      'Einstellbare Reihenfolge je Liste: nach Kategorie im Ladenweg, alphabetisch, neueste oder älteste zuerst.',
+      'Kompaktere Ansicht fürs Handy, angepasst ans iPhone.',
+      'Android-App zum Installieren, mit eingebautem Einrichtungslink.',
+      'Grundfunktionen: mehrere Listen, Kategorien und Mengen, Abgleich über GitHub, mit der Familie teilen, offline abhaken.',
+    ],
+  },
+];
+
+// Release-Text für GitHub (Markdown)
+export function releaseText(version) {
+  const e = AENDERUNGEN.find(a => a.version === version);
+  if (!e) return null;
+  return `### ${e.titel}\n\n${e.punkte.map(p => `- ${p}`).join('\n')}\n\n` +
+    '**Installieren:** Android – in der App „Herunterladen“ antippen oder die Datei unten laden und über die alte Version installieren. ' +
+    'iPhone/PC – App neu öffnen bzw. „Neu laden“.';
+}

@@ -30,6 +30,7 @@
     </form>
     <div id="updBar" class="upd" hidden>
       <span id="updText"></span>
+      <button id="updNews" type="button" class="secondary">Was ist neu?</button>
       <button id="updBtn" type="button" class="primary">Aktualisieren</button>
     </div>
   </header>
@@ -43,6 +44,14 @@
       <button id="clearDone" class="secondary">Erledigte entfernen</button>
     </details>
   </main>
+
+  <dialog id="newsDlg">
+    <div class="pickhead">
+      <h2 id="newsHead">Neuigkeiten</h2>
+      <form method="dialog"><button class="primary">Schließen</button></form>
+    </div>
+    <div id="newsBody"></div>
+  </dialog>
 
   <dialog id="editDlg">
     <form method="dialog">
@@ -99,6 +108,7 @@
       <hr>
       <p id="verText" class="muted"></p>
       <button type="button" id="checkUpd" class="secondary">Nach Updates suchen</button>
+      <button type="button" id="newsBtn" class="secondary wide">Neuigkeiten – was hat sich geändert?</button>
     </form>
   </dialog>
 

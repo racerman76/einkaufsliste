@@ -2,6 +2,7 @@ import { merge, sameDoc, emptyDoc } from './merge.js';
 import { SORTS, catOrder, ordnen, verschieben } from './sort.js';
 import { VERSION, neuer } from './version.js';
 import { CATALOG, iconFor, findCatalog } from './catalog.js';
+import { AENDERUNGEN } from './changelog.js';
 
 const CATS = ['Obst & Gemüse', 'Brot & Backwaren', 'Kühlregal', 'Fleisch & Fisch', 'Tiefkühl',
   'Trockenwaren', 'Getränke', 'Drogerie', 'Haushalt', 'Sonstiges'];
@@ -300,15 +301,16 @@ $('copyLink').onclick = async () => {
 // ---------- Version und Update ----------
 const APP_REPO = 'racerman76/einkaufsliste';
 const isApk = !!window.Capacitor?.isNativePlatform?.();
-let updVer = null;
+let updVer = null, updBody = '';
 $('verText').textContent = `Version ${VERSION} (${isApk ? 'Android-App' : 'Web-App'})`;
 
 async function checkUpdate(manual) {
   try {
     const r = await fetch(`https://api.github.com/repos/${APP_REPO}/releases/latest`, { cache: 'no-store' });
     if (!r.ok) throw new Error(r.status);
-    const tag = (await r.json()).tag_name || '';
+    const rel = await r.json(), tag = rel.tag_name || '';
     updVer = neuer(tag, VERSION) ? tag.replace(/^v/, '') : null;
+    updBody = rel.body || '';
   } catch { if (manual) alert('Update-Prüfung nicht möglich – keine Verbindung zu GitHub?'); return; }
   $('updBar').hidden = !updVer;
   if (updVer) {
@@ -317,6 +319,28 @@ async function checkUpdate(manual) {
   } else if (manual) alert(`Du hast die neueste Version (${VERSION}).`);
 }
 $('checkUpd').onclick = () => checkUpdate(true);
+
+// ---------- Neuigkeiten ----------
+const versionsBlock = (version, titel, punkte, extra) => el('section', { className: 'news' },
+  el('h3', {}, `${titel} `, el('small', { textContent: version.includes('.') && !extra?.ohneNr ? `Version ${version}` : '' }),
+    ...(extra?.aktuell ? [el('span', { className: 'aktuell', textContent: 'deine Version' })] : [])),
+  el('ul', {}, ...punkte.map(p => el('li', { textContent: p }))));
+
+$('newsBtn').onclick = () => {
+  $('newsHead').textContent = 'Neuigkeiten';
+  $('newsBody').replaceChildren(...AENDERUNGEN.map(a =>
+    versionsBlock(a.version, a.titel, a.punkte, { aktuell: a.version === VERSION, ohneNr: a.ohneRelease })));
+  $('newsDlg').showModal();
+};
+// Was bringt das Update? Text kommt aus dem GitHub-Release (Markdown, einfach aufbereitet)
+$('updNews').onclick = () => {
+  const zeilen = updBody.split(/\r?\n/).map(z => z.trim()).filter(Boolean);
+  const titel = (zeilen.find(z => z.startsWith('#')) || `Version ${updVer}`).replace(/^#+\s*/, '');
+  const punkte = zeilen.filter(z => z.startsWith('- ')).map(z => z.slice(2));
+  $('newsHead').textContent = `Neu in Version ${updVer}`;
+  $('newsBody').replaceChildren(versionsBlock(updVer, titel, punkte.length ? punkte : ['Keine Beschreibung vorhanden.'], { ohneNr: true }));
+  $('newsDlg').showModal();
+};
 $('updBtn').onclick = async () => {
   if (isApk) {
     // Öffnet den Browser; GitHub leitet weiter, der Download startet erst nach einigen Sekunden

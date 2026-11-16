@@ -75,6 +75,19 @@ dialog > button, #listDlg form button, #copyLink { display: block; width: 100%; 
 .catrow button { min-width: 40px; min-height: 36px; padding: 4px; }
 .catrow button:disabled { opacity: .3; }
 #resetCats { width: 100%; margin-top: 8px; }
+/* Neuigkeiten */
+#newsDlg { width: min(96vw, 640px); max-height: 90vh; padding: 14px; }
+#newsDlg[open] { display: flex; flex-direction: column; }
+#newsDlg .pickhead { align-items: center; }
+#newsDlg .pickhead h2 { flex: 1; margin: 0; }
+#newsBody { overflow-y: auto; }
+.news { border-top: 1px solid var(--line); padding: 10px 2px; }
+.news h3 { margin: 0 0 6px; font-size: 15px; text-transform: none; letter-spacing: 0; color: var(--text); }
+.news h3 small { color: var(--muted); font-weight: normal; }
+.news ul { margin: 0; padding-left: 20px; }
+.news li { margin-bottom: 4px; }
+.news .aktuell { color: var(--green); font-size: 12px; font-weight: 600; margin-left: 6px; }
+#updNews { padding: 6px 10px; font-size: 14px; }
 /* Artikel ändern */
 .item .name { border: none; background: none; padding: 6px 0; min-height: 0; text-align: left; font: inherit; color: inherit; cursor: pointer; }
 #editDlg label select { display: block; width: 100%; margin-top: 4px; color: var(--text); }
