@@ -28,6 +28,17 @@ jobs:
           mkdir -p www
           cp -r index.html app.js merge.js style.css manifest.webmanifest icons www/
 
+      - name: Einrichtungslink einbauen (Secret EINRICHTUNGSLINK)
+        env:
+          LINK: ${{ secrets.EINRICHTUNGSLINK }}
+        run: |
+          if [ -n "$LINK" ]; then
+            node -e 'require("fs").writeFileSync("www/preset.json", JSON.stringify({ link: process.env.LINK.trim() }))'
+            echo "Einrichtungslink eingebaut."
+          else
+            echo "::warning::Kein Secret EINRICHTUNGSLINK gesetzt – App muss von Hand eingerichtet werden."
+          fi
+
       - name: Capacitor installieren und Android-Projekt anlegen
         run: |
           npm install --no-audit --no-fund
