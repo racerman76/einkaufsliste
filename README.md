@@ -49,7 +49,7 @@ Das Token kann nur dieses eine Repo lesen und schreiben, sonst nichts.
 - **Offline:** Alles funktioniert weiter, Änderungen werden später automatisch übertragen. Ändern zwei Geräte denselben Artikel, gewinnt die zuletzt gemachte Änderung.
 - **Einrichtungslink enthält das Token.** Nur an Familienmitglieder schicken. Wenn er in falsche Hände gerät: Token auf GitHub löschen, neues erstellen, neu verteilen.
 - **Verlauf:** Jede Änderung ist ein Commit im Daten-Repo – damit lässt sich notfalls jeder frühere Stand wiederherstellen.
-- **Updates der App:** Nach Code-Änderungen in `sw.js` die Versionsnummer `einkauf-v17` hochzählen, sonst hängen Handys an der alten Version.
+- **Updates der App:** Nach Code-Änderungen in `sw.js` die Versionsnummer `einkauf-v18` hochzählen, sonst hängen Handys an der alten Version.
 - **Token-Ablauf:** Läuft das Token ab, zeigt die App „Token ungültig“. Neues Token erstellen und unter ⚙ eintragen.
 
 ## Dateien
@@ -66,7 +66,7 @@ Download: https://github.com/racerman76/einkaufsliste/releases/latest/download/E
 
 ## Versionen und Updates
 - Jede Version wird in `changelog.js` beschrieben (Titel + Stichpunkte, neueste oben). Daraus entstehen die Release-Texte auf GitHub und das Fenster „Neuigkeiten“ unter ⚙. Der Selbsttest prüft, dass der neueste Eintrag zur Nummer in `version.js` passt.
-- Die Versionsnummer steht in `version.js` (`VERSION = '1.8.0'`). **Bei jeder Änderung an der App hochzählen** – nur dann baut GitHub ein neues Release `v<Version>`. Änderungen ohne neue Nummer (z. B. nur README) erzeugen kein Release.
+- Die Versionsnummer steht in `version.js` (`VERSION = '1.8.1'`). **Bei jeder Änderung an der App hochzählen** – nur dann baut GitHub ein neues Release `v<Version>`. Änderungen ohne neue Nummer (z. B. nur README) erzeugen kein Release.
 - In der App unter ⚙ steht die aktuelle Version, dazu „Nach Updates suchen“. Beim Start prüft die App selbst und zeigt oben eine Leiste, wenn es eine neuere Version gibt:
   - **Android:** „Herunterladen“ lädt die neue APK im Browser – Datei antippen und über die alte installieren.
   - **iPhone/PC:** „Neu laden“ holt die neue Version.

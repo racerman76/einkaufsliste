@@ -3,6 +3,14 @@
 // Aus diesen Texten entstehen die Release-Beschreibungen auf GitHub und das Fenster „Neuigkeiten“ in der App.
 export const AENDERUNGEN = [
   {
+    version: '1.8.1', titel: 'Fenster schnell schließen',
+    punkte: [
+      'Alle verschiebbaren Fenster haben oben rechts ein ✕ zum schnellen Schließen: „Artikel ändern“, „Einstellungen“, „Listen“, „Neuigkeiten“ und „Auswahl-Eintrag ändern“.',
+      'Das ✕ wirkt wie „Abbrechen“ – nicht gespeicherte Eingaben werden verworfen.',
+      'Im Fenster „Neuigkeiten“ ersetzt das ✕ den bisherigen Knopf „Schließen“.',
+    ],
+  },
+  {
     version: '1.8.0', titel: 'Symbol-Auswahl selbst anpassen',
     punkte: [
       'In der Symbol-Auswahl 🧺 schaltet ✎ in den Bearbeiten-Modus. Ein Eintrag lässt sich dann umbenennen, mit anderem Symbol versehen oder einer anderen Kategorie zuordnen.',

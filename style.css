@@ -78,6 +78,12 @@ dialog > button, #listDlg form button, #copyLink { display: block; width: 100%; 
 /* Verschiebbare Fenster: am Titel ziehen */
 .griff { cursor: move; touch-action: none; user-select: none; -webkit-user-select: none; }
 .griff::after { content: ' ⠿'; color: var(--muted); font-weight: normal; font-size: .8em; }
+/* ✕ oben rechts in verschiebbaren Fenstern */
+dialog:has(> .xbtn) { position: fixed; }
+.xbtn { position: absolute; top: 8px; right: 8px; z-index: 1; width: 40px; height: 40px; min-height: 0; min-width: 0;
+  padding: 0; border-radius: 50%; border: none; background: transparent; color: var(--muted); font-size: 20px; line-height: 1; }
+.xbtn:hover, .xbtn:focus-visible { background: var(--bg); color: var(--text); }
+dialog h2.griff { padding-right: 40px; }
 /* Neuigkeiten */
 #newsDlg { width: min(96vw, 640px); max-height: 90vh; padding: 14px; }
 #newsDlg[open] { display: flex; flex-direction: column; }

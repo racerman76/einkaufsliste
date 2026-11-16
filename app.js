@@ -422,6 +422,10 @@ if (!cfg.token) try {
 function verschiebbar(dlg) {
   const griff = dlg.querySelector('h2');
   griff.classList.add('griff'); griff.title = 'Zum Verschieben ziehen';
+  // ✕ oben rechts: schließt wie „Abbrechen“ (nichts wird gespeichert)
+  const zu = el('button', { type: 'button', className: 'xbtn', textContent: '✕', title: 'Schließen', ariaLabel: 'Schließen' });
+  zu.onclick = () => dlg.close('');
+  dlg.prepend(zu);
   let x = 0, y = 0, sx, sy, ox, oy;
   const setze = (nx, ny) => {
     dlg.style.translate = '0 0';
