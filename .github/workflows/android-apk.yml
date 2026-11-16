@@ -59,6 +59,20 @@ jobs:
             echo "$tag → $wann"
           done
 
+      - name: Release-Beschreibungen aus changelog.js aktualisieren
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node changelog.test.mjs
+          for v in $(node release-text.mjs --alle); do
+            gh release view "v$v" -R "$GITHUB_REPOSITORY" --json body,isLatest > info.json 2>/dev/null || continue
+            node release-text.mjs "$v" > neu.md
+            if [ "$(jq -r .body info.json)" != "$(cat neu.md)" ]; then
+              gh release edit "v$v" -R "$GITHUB_REPOSITORY" --notes-file neu.md --latest="$(jq -r .isLatest info.json)"
+              echo "Beschreibung von v$v aktualisiert"
+            fi
+          done
+
   apk:
     needs: pruefen
     if: needs.pruefen.outputs.bauen == 'ja'
@@ -80,7 +94,7 @@ jobs:
       - name: Web-Dateien nach www kopieren
         run: |
           mkdir -p www
-          cp -r index.html app.js merge.js sort.js version.js catalog.js style.css manifest.webmanifest icons www/
+          cp -r index.html app.js merge.js sort.js version.js catalog.js changelog.js style.css manifest.webmanifest icons www/
 
       - name: Einrichtungslink einbauen (Secret EINRICHTUNGSLINK)
         env:
@@ -152,16 +166,13 @@ jobs:
       - name: Als Release veröffentlichen
         env:
           GH_TOKEN: ${{ github.token }}
-          AENDERUNG: ${{ github.event.head_commit.message || 'Manuell neu gebaut' }}
         run: |
           cp android/app/build/outputs/apk/debug/app-debug.apk Einkaufsliste.apk
+          node release-text.mjs "$VERSION" > release-text.md
           if gh release view "v$VERSION" >/dev/null 2>&1; then
             gh release upload "v$VERSION" Einkaufsliste.apk --clobber
           else
             gh release create "v$VERSION" Einkaufsliste.apk --latest \
               --title "Einkaufsliste $VERSION ($(TZ=Europe/Berlin date '+%d.%m.%Y %H:%M'))" \
-              --notes "Änderung: $AENDERUNG
-
-          Android: herunterladen und über die alte Version installieren (oder in der App auf „Herunterladen“ tippen).
-          iPhone/PC: App neu öffnen bzw. in der App „Neu laden“."
+              --notes-file release-text.md
           fi
