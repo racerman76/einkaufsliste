@@ -64,12 +64,16 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           node changelog.test.mjs
+          LATEST=$(gh release view -R "$GITHUB_REPOSITORY" --json tagName -q .tagName)
           for v in $(node release-text.mjs --alle); do
-            gh release view "v$v" -R "$GITHUB_REPOSITORY" --json body,isLatest > info.json 2>/dev/null || continue
+            BODY=$(gh release view "v$v" -R "$GITHUB_REPOSITORY" --json body -q .body 2>/dev/null) || { echo "v$v: noch kein Release"; continue; }
             node release-text.mjs "$v" > neu.md
-            if [ "$(jq -r .body info.json)" != "$(cat neu.md)" ]; then
-              gh release edit "v$v" -R "$GITHUB_REPOSITORY" --notes-file neu.md --latest="$(jq -r .isLatest info.json)"
-              echo "Beschreibung von v$v aktualisiert"
+            if [ "$(printf '%s' "$BODY" | tr -d '\r')" != "$(cat neu.md)" ]; then
+              [ "v$v" = "$LATEST" ] && L=true || L=false
+              gh release edit "v$v" -R "$GITHUB_REPOSITORY" --notes-file neu.md --latest="$L"
+              echo "v$v: Beschreibung aktualisiert"
+            else
+              echo "v$v: unverändert"
             fi
           done
 
