@@ -3,6 +3,14 @@
 // Aus diesen Texten entstehen die Release-Beschreibungen auf GitHub und das Fenster „Neuigkeiten“ in der App.
 export const AENDERUNGEN = [
   {
+    version: '1.7.1', titel: 'Zahlentastatur für die Menge',
+    punkte: [
+      'Beim Eintippen der Menge öffnet das Handy jetzt die Zahlentastatur statt der normalen Tastatur.',
+      'Im Fenster „Artikel ändern“ gibt es neben der Menge eine Auswahl für die Einheit (Stück, g, kg, ml, l, Pck., Fl., Dose, Becher, Bund, Glas).',
+      'Bestehende Mengen wie „2 kg“ werden dabei automatisch in Zahl und Einheit aufgeteilt.',
+    ],
+  },
+  {
     version: '1.7.0', titel: 'Neuigkeiten in der App',
     punkte: [
       'Unter ⚙ gibt es jetzt „Neuigkeiten“: eine Übersicht aller Versionen mit ihren Änderungen.',

@@ -23,7 +23,7 @@
     </div>
     <form id="addForm" class="row add" autocomplete="off">
       <input id="name" placeholder="Artikel, z. B. Milch" aria-label="Artikel" required enterkeyhint="done" autocomplete="off" autocapitalize="sentences">
-      <input id="qty" placeholder="Menge" aria-label="Menge" enterkeyhint="done" autocomplete="off">
+      <input id="qty" placeholder="Menge" aria-label="Menge" enterkeyhint="done" autocomplete="off" inputmode="decimal">
       <select id="cat" aria-label="Kategorie"></select>
       <button id="pickBtn" type="button" class="icon" title="Aus Symbolen auswählen" aria-label="Aus Symbolen auswählen">🧺</button>
       <button type="submit" class="primary">+</button>
@@ -57,7 +57,10 @@
     <form method="dialog">
       <h2>Artikel ändern</h2>
       <label>Artikel <input id="edName" required autocomplete="off" enterkeyhint="done"></label>
-      <label>Menge <input id="edQty" placeholder="z. B. 2 kg" autocomplete="off" enterkeyhint="done"></label>
+      <div class="row mengezeile">
+        <label>Menge <input id="edQty" placeholder="z. B. 2" autocomplete="off" enterkeyhint="done" inputmode="decimal"></label>
+        <label>Einheit <select id="edUnit"></select></label>
+      </div>
       <label>Kategorie <select id="edCat"></select></label>
       <div class="row">
         <button value="save" class="primary">Speichern</button>

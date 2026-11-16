@@ -111,9 +111,15 @@ function render() {
 
 // ---------- Artikel bearbeiten ----------
 let editing = null;
+const EINHEITEN = ['', 'Stück', 'g', 'kg', 'ml', 'l', 'Pck.', 'Fl.', 'Dose', 'Becher', 'Bund', 'Glas'];
+// "2,5 kg" → ["2,5", "kg"]; Mengen ohne Zahl (z. B. "eine Handvoll") landen komplett in der Einheit
+const teileMenge = q => { const m = String(q || '').trim().match(/^([\d.,\/½¼¾]*)\s*(.*)$/); return [m[1], m[2]]; };
 function editItem(i) {
   editing = i;
-  $('edName').value = i.name; $('edQty').value = i.qty || '';
+  const [zahl, einheit] = teileMenge(i.qty);
+  $('edName').value = i.name; $('edQty').value = zahl;
+  $('edUnit').replaceChildren(...[...new Set([...EINHEITEN, einheit])].map(u => el('option', { value: u, textContent: u || '–' })));
+  $('edUnit').value = einheit;
   $('edCat').replaceChildren(...catOrder(doc.lists[cur], CATS).map(c => el('option', { value: c, textContent: c })));
   $('edCat').value = CATS.includes(i.cat) ? i.cat : 'Sonstiges';
   $('editDlg').returnValue = ''; // sonst gilt bei Esc/Zurück noch der Knopf vom letzten Mal
@@ -127,7 +133,7 @@ $('editDlg').addEventListener('close', () => {
   if (r === 'del') return touch(i, { deleted: true });
   const name = $('edName').value.trim();
   if (r !== 'save' || !name) return;
-  touch(i, { name, qty: $('edQty').value.trim(), cat: $('edCat').value });
+  touch(i, { name, qty: [$('edQty').value.trim(), $('edUnit').value].filter(Boolean).join(' '), cat: $('edCat').value });
 });
 
 // ---------- Symbol-Auswahl ----------
