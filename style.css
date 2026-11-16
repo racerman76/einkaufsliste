@@ -6,6 +6,7 @@
   :root { --bg: #151816; --card: #1f2421; --text: #e8ece9; --muted: #9aa49e; --line: #333a36; --green: #4caf73; }
 }
 * { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; } /* iPhone: Schrift beim Drehen nicht aufblähen */
 body { margin: 0; font: 17px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); }
 header { position: sticky; top: 0; z-index: 1; background: var(--card); border-bottom: 1px solid var(--line);
   padding: max(8px, env(safe-area-inset-top)) 12px 8px; }
@@ -19,10 +20,24 @@ input, select, button { font: inherit; color: inherit; border: 1px solid var(--l
 .add #name { flex: 1; min-width: 0; }
 .add #qty { width: 5.5em; }
 .add #cat { width: 8em; }
+/* Handy (iPhone 15: 393 px): kompakter. Eingabefelder bleiben bei 16 px, sonst zoomt iOS beim Antippen hinein. */
 @media (max-width: 480px) {
+  body { font-size: 16px; }
+  header { padding: max(6px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) 6px max(10px, env(safe-area-inset-left)); }
+  main { padding: 4px max(10px, env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left)); }
+  .row { gap: 6px; margin-bottom: 6px; }
+  input, select, button { padding: 7px 10px; min-height: 40px; border-radius: 9px; }
   .add { flex-wrap: wrap; }
   .add #name { flex: 1 1 100%; }
-  .add #qty { flex: 1; } .add #cat { flex: 2; }
+  .add #qty { flex: 1; min-width: 0; } .add #cat { flex: 2; min-width: 0; }
+  .sync { padding: 7px 13px; }
+  .sync:not(:has(.dot.err)) #syncText { display: none; } /* nur bei Fehler Text zeigen */
+  #syncText { max-width: 6em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  h3 { font-size: 12px; margin: 12px 4px 4px; }
+  .item { gap: 8px; padding: 2px 2px 2px 10px; margin-bottom: 4px; border-radius: 10px; }
+  .item input[type=checkbox] { width: 22px; height: 22px; }
+  .item .qty { font-size: 15px; }
+  details summary { margin: 14px 4px 6px; }
 }
 button { cursor: pointer; }
 button.primary { background: var(--green); color: #fff; border-color: var(--green); font-weight: 600; min-width: 44px; }

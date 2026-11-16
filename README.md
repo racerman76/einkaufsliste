@@ -48,7 +48,7 @@ Das Token kann nur dieses eine Repo lesen und schreiben, sonst nichts.
 - **Offline:** Alles funktioniert weiter, Änderungen werden später automatisch übertragen. Ändern zwei Geräte denselben Artikel, gewinnt die zuletzt gemachte Änderung.
 - **Einrichtungslink enthält das Token.** Nur an Familienmitglieder schicken. Wenn er in falsche Hände gerät: Token auf GitHub löschen, neues erstellen, neu verteilen.
 - **Verlauf:** Jede Änderung ist ein Commit im Daten-Repo – damit lässt sich notfalls jeder frühere Stand wiederherstellen.
-- **Updates der App:** Nach Code-Änderungen in `sw.js` die Versionsnummer `einkauf-v4` hochzählen, sonst hängen Handys an der alten Version.
+- **Updates der App:** Nach Code-Änderungen in `sw.js` die Versionsnummer `einkauf-v5` hochzählen, sonst hängen Handys an der alten Version.
 - **Token-Ablauf:** Läuft das Token ab, zeigt die App „Token ungültig“. Neues Token erstellen und unter ⚙ eintragen.
 
 ## Dateien
