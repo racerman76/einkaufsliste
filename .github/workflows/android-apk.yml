@@ -46,6 +46,19 @@ jobs:
             echo "bauen=ja" >> $GITHUB_OUTPUT
           fi
 
+      # Ältere Releases ohne Uhrzeit im Titel nachträglich ergänzen ("… (16.11.2026)" → "… (16.11.2026 09:47)")
+      - name: Release-Titel mit Uhrzeit ergänzen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release list -R "$GITHUB_REPOSITORY" --limit 200 --json tagName,name,createdAt,isLatest \
+            -q 'sort_by(.createdAt)[] | select(.tagName|startswith("v")) | select(.name|test("\\(\\d\\d\\.\\d\\d\\.\\d{4}\\)$")) | [.tagName,.createdAt,(.isLatest|tostring)] | @tsv' |
+          while IFS=$'\t' read -r tag created latest; do
+            wann=$(TZ=Europe/Berlin date -d "$created" '+%d.%m.%Y %H:%M')
+            gh release edit "$tag" -R "$GITHUB_REPOSITORY" --title "Einkaufsliste ${tag#v} ($wann)" --latest="$latest"
+            echo "$tag → $wann"
+          done
+
   apk:
     needs: pruefen
     if: needs.pruefen.outputs.bauen == 'ja'
@@ -146,7 +159,7 @@ jobs:
             gh release upload "v$VERSION" Einkaufsliste.apk --clobber
           else
             gh release create "v$VERSION" Einkaufsliste.apk --latest \
-              --title "Einkaufsliste $VERSION ($(TZ=Europe/Berlin date '+%d.%m.%Y'))" \
+              --title "Einkaufsliste $VERSION ($(TZ=Europe/Berlin date '+%d.%m.%Y %H:%M'))" \
               --notes "Änderung: $AENDERUNG
 
           Android: herunterladen und über die alte Version installieren (oder in der App auf „Herunterladen“ tippen).
