@@ -54,7 +54,7 @@ jobs:
       - name: Web-Dateien nach www kopieren
         run: |
           mkdir -p www
-          cp -r index.html app.js merge.js sort.js version.js style.css manifest.webmanifest icons www/
+          cp -r index.html app.js merge.js sort.js version.js catalog.js style.css manifest.webmanifest icons www/
 
       - name: Einrichtungslink einbauen (Secret EINRICHTUNGSLINK)
         env:
