@@ -44,6 +44,20 @@
     </details>
   </main>
 
+  <dialog id="editDlg">
+    <form method="dialog">
+      <h2>Artikel ändern</h2>
+      <label>Artikel <input id="edName" required autocomplete="off" enterkeyhint="done"></label>
+      <label>Menge <input id="edQty" placeholder="z. B. 2 kg" autocomplete="off" enterkeyhint="done"></label>
+      <label>Kategorie <select id="edCat"></select></label>
+      <div class="row">
+        <button value="save" class="primary">Speichern</button>
+        <button value="cancel" formnovalidate class="secondary">Abbrechen</button>
+      </div>
+      <button value="del" formnovalidate class="danger wide">Von der Liste löschen</button>
+    </form>
+  </dialog>
+
   <dialog id="pickDlg">
     <div class="pickhead">
       <input id="pickSearch" type="search" placeholder="Suchen …" aria-label="Artikel suchen">

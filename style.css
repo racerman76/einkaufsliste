@@ -75,6 +75,11 @@ dialog > button, #listDlg form button, #copyLink { display: block; width: 100%; 
 .catrow button { min-width: 40px; min-height: 36px; padding: 4px; }
 .catrow button:disabled { opacity: .3; }
 #resetCats { width: 100%; margin-top: 8px; }
+/* Artikel ändern */
+.item .name { border: none; background: none; padding: 6px 0; min-height: 0; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+#editDlg label select { display: block; width: 100%; margin-top: 4px; color: var(--text); }
+#editDlg .row button { flex: 1; }
+.wide { display: block; width: 100%; margin-top: 8px; }
 /* Symbol-Auswahl */
 #pickDlg { width: min(96vw, 760px); height: min(92vh, 900px); padding: 12px; }
 #pickDlg[open] { display: flex; flex-direction: column; }

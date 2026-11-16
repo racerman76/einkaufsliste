@@ -78,11 +78,13 @@ function el(tag, props = {}, ...kids) {
 function row(i) {
   const cb = el('input', { type: 'checkbox', checked: !!i.done, ariaLabel: i.name + ' erledigt' });
   cb.onchange = () => touch(i, { done: cb.checked });
-  const qty = el('button', { className: 'qty', textContent: i.qty || 'Menge', title: 'Menge ändern' });
-  qty.onclick = () => { const q = prompt('Menge für ' + i.name, i.qty || ''); if (q !== null) touch(i, { qty: q.trim() }); };
+  const qty = el('button', { className: 'qty', textContent: i.qty || 'Menge', title: 'Ändern' });
+  qty.onclick = () => editItem(i);
   const del = el('button', { className: 'del', textContent: '✕', title: 'Löschen', ariaLabel: i.name + ' löschen' });
   del.onclick = () => touch(i, { deleted: true });
-  const name = el('span', { className: 'name', textContent: i.name });
+  // Name antippen = Artikel bearbeiten
+  const name = el('button', { type: 'button', className: 'name', textContent: i.name, title: 'Ändern', ariaLabel: i.name + ' ändern' });
+  name.onclick = () => editItem(i);
   if (i.by && i.by !== cfg.user) name.append(el('span', { className: 'by', textContent: i.by }));
   const ic = el('span', { className: 'ic', textContent: iconFor(i.name, i.cat), ariaHidden: 'true' });
   return el('div', { className: 'item' }, cb, ic, name, qty, del);
@@ -105,6 +107,27 @@ function render() {
   $('done').replaceChildren(...done.sort((a, b) => b.updatedAt - a.updatedAt).map(row));
   if ($('pickDlg').open) renderPicker();
 }
+
+// ---------- Artikel bearbeiten ----------
+let editing = null;
+function editItem(i) {
+  editing = i;
+  $('edName').value = i.name; $('edQty').value = i.qty || '';
+  $('edCat').replaceChildren(...catOrder(doc.lists[cur], CATS).map(c => el('option', { value: c, textContent: c })));
+  $('edCat').value = CATS.includes(i.cat) ? i.cat : 'Sonstiges';
+  $('editDlg').returnValue = ''; // sonst gilt bei Esc/Zurück noch der Knopf vom letzten Mal
+  $('editDlg').showModal();
+}
+$('edName').addEventListener('input', e => { const c = findCatalog(e.target.value)?.cat; if (c) $('edCat').value = c; });
+$('editDlg').addEventListener('close', () => {
+  const i = editing; editing = null;
+  if (!i) return;
+  const r = $('editDlg').returnValue;
+  if (r === 'del') return touch(i, { deleted: true });
+  const name = $('edName').value.trim();
+  if (r !== 'save' || !name) return;
+  touch(i, { name, qty: $('edQty').value.trim(), cat: $('edCat').value });
+});
 
 // ---------- Symbol-Auswahl ----------
 // Kachel antippen: Artikel auf die Liste; ist er schon offen drauf, wieder entfernen
