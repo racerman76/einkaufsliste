@@ -3,6 +3,12 @@
 // Aus diesen Texten entstehen die Release-Beschreibungen auf GitHub und das Fenster „Neuigkeiten“ in der App.
 export const AENDERUNGEN = [
   {
+    version: '1.8.3', titel: '„Fertig“ in der Symbol-Auswahl ist zurück',
+    punkte: [
+      'Die Symbol-Auswahl 🧺 hat wieder den Knopf „Fertig“ – zusätzlich zum ✕ oben rechts. Beide schließen die Auswahl.',
+    ],
+  },
+  {
     version: '1.8.2', titel: 'Symbol-Auswahl mit ✕ schließen',
     punkte: [
       'Die Symbol-Auswahl 🧺 hat oben rechts jetzt ebenfalls ein ✕ und schließt damit sofort, ohne etwas zu bestätigen.',

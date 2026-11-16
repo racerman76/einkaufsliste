@@ -85,6 +85,8 @@ dialog:has(> .xbtn) { position: fixed; }
 .xbtn:hover, .xbtn:focus-visible { background: var(--bg); color: var(--text); }
 dialog h2.griff { padding-right: 40px; }
 .xbtn.inline { position: static; flex: none; align-self: center; }
+.pickhead { align-items: center; }
+.pickhead #pickFertig { flex: none; padding: 8px 12px; }
 /* Neuigkeiten */
 #newsDlg { width: min(96vw, 640px); max-height: 90vh; padding: 14px; }
 #newsDlg[open] { display: flex; flex-direction: column; }

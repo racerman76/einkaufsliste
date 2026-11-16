@@ -186,7 +186,7 @@ const katEintraegeAnzahl = () => Object.values(doc.items).filter(o => o.listId =
 $('pickBtn').onclick = () => { $('pickSearch').value = ''; pickEdit = false; renderPicker(); $('pickDlg').showModal(); };
 $('pickSearch').oninput = renderPicker;
 $('pickEdit').onclick = () => { pickEdit = !pickEdit; renderPicker(); };
-$('pickDone').onclick = () => $('pickDlg').close();
+$('pickDone').onclick = $('pickFertig').onclick = () => $('pickDlg').close();
 
 // Eintrag der Auswahl bearbeiten (Fenster „Auswahl-Eintrag“)
 let katAktuell = null;
