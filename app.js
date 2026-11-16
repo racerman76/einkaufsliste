@@ -186,10 +186,15 @@ $('deleteList').onclick = () => {
 };
 
 $('settingsBtn').onclick = () => {
-  $('cfgUser').value = cfg.user || ''; $('cfgOwner').value = cfg.owner || '';
+  // Konto aus der Pages-Adresse (racerman76.github.io → racerman76) vorbelegen
+  const pagesOwner = location.hostname.endsWith('.github.io') ? location.hostname.split('.')[0] : '';
+  $('cfgUser').value = cfg.user || ''; $('cfgOwner').value = cfg.owner || pagesOwner;
   $('cfgRepo').value = cfg.repo || 'einkaufsliste-daten'; $('cfgToken').value = cfg.token || '';
   $('setDlg').showModal();
 };
+const tokenOk = t => /^(github_pat_|ghp_)\w+$/.test(t);
+$('cfgToken').addEventListener('input', e =>
+  e.target.setCustomValidity(tokenOk(e.target.value.trim()) ? '' : 'Das ist kein GitHub-Token (beginnt mit github_pat_…).'));
 $('setDlg').addEventListener('close', () => {
   if ($('setDlg').returnValue !== 'save') return;
   const owner = $('cfgOwner').value.trim(), repo = $('cfgRepo').value.trim(), token = $('cfgToken').value.trim();
@@ -199,6 +204,7 @@ $('setDlg').addEventListener('close', () => {
 });
 $('copyLink').onclick = async () => {
   const c = { owner: $('cfgOwner').value.trim(), repo: $('cfgRepo').value.trim(), token: $('cfgToken').value.trim() };
+  if (!c.owner || !c.repo || !tokenOk(c.token)) return alert('Erst Konto, Repo und ein gültiges Token (github_pat_…) eintragen.');
   const link = location.origin + location.pathname + '#setup=' + btoa(unescape(encodeURIComponent(JSON.stringify(c))));
   try { await navigator.clipboard.writeText(link); alert('Link kopiert. Nur an Familienmitglieder schicken – er enthält das Token.'); }
   catch { prompt('Link kopieren:', link); }
