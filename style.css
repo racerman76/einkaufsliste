@@ -75,6 +75,9 @@ dialog > button, #listDlg form button, #copyLink { display: block; width: 100%; 
 .catrow button { min-width: 40px; min-height: 36px; padding: 4px; }
 .catrow button:disabled { opacity: .3; }
 #resetCats { width: 100%; margin-top: 8px; }
+/* Verschiebbare Fenster: am Titel ziehen */
+.griff { cursor: move; touch-action: none; user-select: none; -webkit-user-select: none; }
+.griff::after { content: ' ⠿'; color: var(--muted); font-weight: normal; font-size: .8em; }
 /* Neuigkeiten */
 #newsDlg { width: min(96vw, 640px); max-height: 90vh; padding: 14px; }
 #newsDlg[open] { display: flex; flex-direction: column; }

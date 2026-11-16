@@ -3,6 +3,14 @@
 // Aus diesen Texten entstehen die Release-Beschreibungen auf GitHub und das Fenster „Neuigkeiten“ in der App.
 export const AENDERUNGEN = [
   {
+    version: '1.7.2', titel: 'Fenster verschieben',
+    punkte: [
+      'Die Fenster „Artikel ändern“, „Einstellungen“, „Listen“ und „Neuigkeiten“ lassen sich verschieben: am Titel mit dem Griff ⠿ ziehen, mit dem Finger oder der Maus.',
+      'Praktisch auf dem Handy, wenn die Tastatur das Fenster verdeckt.',
+      'Der Titel bleibt dabei immer auf dem Bildschirm. Doppeltippen auf den Titel holt das Fenster zurück in die Mitte.',
+    ],
+  },
+  {
     version: '1.7.1', titel: 'Zahlentastatur für die Menge',
     punkte: [
       'Beim Eintippen der Menge öffnet das Handy jetzt die Zahlentastatur statt der normalen Tastatur.',

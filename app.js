@@ -372,6 +372,35 @@ if (!cfg.token) try {
   if (r.ok) { cfg = { ...parseSetup((await r.json()).link), user: cfg.user || '' }; localStorage.setItem('ek-cfg', JSON.stringify(cfg)); }
 } catch {}
 
+// ---------- Fenster verschieben ----------
+// Am Titel (h2) ziehen – mit Finger oder Maus. Die Position bleibt bis zum Neuladen erhalten,
+// wird aber immer so begrenzt, dass der Titel auf dem Bildschirm bleibt.
+function verschiebbar(dlg) {
+  const griff = dlg.querySelector('h2');
+  griff.classList.add('griff'); griff.title = 'Zum Verschieben ziehen';
+  let x = 0, y = 0, sx, sy, ox, oy;
+  const setze = (nx, ny) => {
+    dlg.style.translate = '0 0';
+    const r = dlg.getBoundingClientRect(), g = griff.getBoundingClientRect(), rand = 48;
+    const vw = window.visualViewport?.width || innerWidth, vh = window.visualViewport?.height || innerHeight;
+    x = Math.min(Math.max(nx, rand - r.right), vw - rand - r.left);
+    y = Math.min(Math.max(ny, 4 - g.top), vh - 4 - g.bottom); // Titel bleibt immer sichtbar
+    dlg.style.translate = `${x}px ${y}px`;
+  };
+  griff.addEventListener('pointerdown', e => {
+    if (e.button > 0) return;
+    sx = e.clientX; sy = e.clientY; ox = x; oy = y;
+    griff.setPointerCapture(e.pointerId); e.preventDefault();
+  });
+  griff.addEventListener('pointermove', e => {
+    if (griff.hasPointerCapture(e.pointerId)) setze(ox + e.clientX - sx, oy + e.clientY - sy);
+  });
+  griff.addEventListener('dblclick', () => setze(0, 0)); // Doppeltippen = zurück in die Mitte
+  new MutationObserver(() => { if (dlg.open) requestAnimationFrame(() => setze(x, y)); })
+    .observe(dlg, { attributes: true, attributeFilter: ['open'] });
+}
+['editDlg', 'setDlg', 'listDlg', 'newsDlg'].forEach(id => verschiebbar($(id)));
+
 render();
 if (!cfg.token) $('settingsBtn').click(); else sync();
 checkUpdate(false);
