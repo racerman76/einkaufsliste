@@ -103,9 +103,6 @@ function render() {
   $('doneBox').hidden = done.length === 0;
   $('doneCount').textContent = done.length;
   $('done').replaceChildren(...done.sort((a, b) => b.updatedAt - a.updatedAt).map(row));
-  const names = [...new Set([...Object.values(doc.items).map(i => i.name), ...CATALOG.map(e => e.name)])]
-    .sort((a, b) => a.localeCompare(b, 'de'));
-  $('known').replaceChildren(...names.map(n => el('option', { value: n })));
   if ($('pickDlg').open) renderPicker();
 }
 
