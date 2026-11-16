@@ -299,8 +299,11 @@ async function checkUpdate(manual) {
 $('checkUpd').onclick = () => checkUpdate(true);
 $('updBtn').onclick = async () => {
   if (isApk) {
-    // Öffnet den Browser; danach die geladene Datei antippen und über die alte App installieren
-    alert('Die neue Version wird im Browser heruntergeladen. Danach die Datei antippen und installieren.');
+    // Öffnet den Browser; GitHub leitet weiter, der Download startet erst nach einigen Sekunden
+    $('updText').textContent = `Download von ${updVer} läuft im Browser – das kann bis zu einer Minute dauern. ` +
+      'Danach oben die Download-Meldung antippen und „Installieren“ wählen.';
+    $('updBtn').disabled = true; $('updBtn').textContent = 'Lädt …';
+    setTimeout(() => { $('updBtn').disabled = false; $('updBtn').textContent = 'Nochmal laden'; }, 60000);
     location.href = `https://github.com/${APP_REPO}/releases/download/v${updVer}/Einkaufsliste.apk`;
   } else {
     try { await (await navigator.serviceWorker?.getRegistration())?.update(); } catch {}
