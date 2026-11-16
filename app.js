@@ -1,4 +1,5 @@
 import { merge, sameDoc, emptyDoc } from './merge.js';
+import { SORTS, catOrder, ordnen, verschieben } from './sort.js';
 
 const CATS = ['Obst & Gemüse', 'Brot & Backwaren', 'Kühlregal', 'Fleisch & Fisch', 'Tiefkühl',
   'Trockenwaren', 'Getränke', 'Drogerie', 'Haushalt', 'Sonstiges'];
@@ -54,7 +55,7 @@ function addItem(name, qty, cat) {
   const ex = items().find(i => i.name.toLowerCase() === name.toLowerCase());
   if (ex) return touch(ex, { done: false, qty: qty || ex.qty, cat });
   const id = uid();
-  doc.items[id] = { id, listId: cur, name, qty, cat, done: false, by: cfg.user || '' };
+  doc.items[id] = { id, listId: cur, name, qty, cat, done: false, by: cfg.user || '', created: Date.now() };
   touch(doc.items[id], {});
 }
 
@@ -89,10 +90,12 @@ function render() {
   $('listSel').replaceChildren(...lists().map(l => el('option', { value: l.id, textContent: l.name, selected: l.id === cur })));
   const all = items();
   const open = all.filter(i => !i.done), done = all.filter(i => i.done);
-  const groups = CATS.map(c => [c, open.filter(i => (CATS.includes(i.cat) ? i.cat : 'Sonstiges') === c)])
-    .filter(([, g]) => g.length);
-  $('open').replaceChildren(...groups.flatMap(([c, g]) =>
-    [el('h3', { textContent: c }), ...g.sort((a, b) => a.name.localeCompare(b.name, 'de')).map(row)]));
+  $('open').replaceChildren(...ordnen(open, doc.lists[cur], CATS).flatMap(([c, g]) =>
+    [...(c ? [el('h3', { textContent: c })] : []), ...g.map(row)]));
+  // Kategorie-Auswahl beim Hinzufügen in derselben Reihenfolge wie die Liste
+  const sel = $('cat').value || 'Sonstiges';
+  $('cat').replaceChildren(...catOrder(doc.lists[cur], CATS).map(c => el('option', { value: c, textContent: c })));
+  $('cat').value = sel;
   $('empty').hidden = all.length > 0;
   $('doneBox').hidden = done.length === 0;
   $('doneCount').textContent = done.length;
@@ -151,8 +154,6 @@ async function sync() {
 }
 
 // ---------- Bedienung ----------
-$('cat').replaceChildren(...CATS.map(c => el('option', { value: c, textContent: c })));
-$('cat').value = 'Sonstiges';
 $('name').addEventListener('input', e => { const c = lastCat(e.target.value.trim()); if (c) $('cat').value = c; });
 $('addForm').onsubmit = e => {
   e.preventDefault();
@@ -167,7 +168,25 @@ $('clearDone').onclick = () => {
 };
 $('syncBtn').onclick = () => sync();
 
-$('listMenuBtn').onclick = () => $('listDlg').showModal();
+// Sortierung der aktuellen Liste (☰-Dialog)
+$('sortSel').replaceChildren(...Object.entries(SORTS).map(([v, t]) => el('option', { value: v, textContent: t })));
+function renderSortDlg() {
+  const l = doc.lists[cur];
+  $('sortList').textContent = l.name;
+  $('sortSel').value = l.sort || 'kat';
+  $('catBox').hidden = $('sortSel').value !== 'kat';
+  const order = catOrder(l, CATS);
+  const btn = (txt, label, dir, c, off) => {
+    const b = el('button', { type: 'button', className: 'icon', textContent: txt, ariaLabel: `${c} ${label}`, disabled: off });
+    b.onclick = () => { touch(l, { cats: verschieben(order, c, dir) }); renderSortDlg(); };
+    return b;
+  };
+  $('catOrder').replaceChildren(...order.map((c, i) => el('div', { className: 'catrow' },
+    el('span', { textContent: `${i + 1}. ${c}` }), btn('↑', 'nach oben', -1, c, i === 0), btn('↓', 'nach unten', 1, c, i === order.length - 1))));
+}
+$('sortSel').onchange = e => { touch(doc.lists[cur], { sort: e.target.value }); renderSortDlg(); };
+$('resetCats').onclick = () => { touch(doc.lists[cur], { cats: [] }); renderSortDlg(); };
+$('listMenuBtn').onclick = () => { renderSortDlg(); $('listDlg').showModal(); };
 $('newList').onclick = () => {
   const n = prompt('Name der neuen Liste', 'Baumarkt'); if (!n?.trim()) return;
   const id = uid(); doc.lists[id] = { id, name: n.trim(), created: Date.now() };

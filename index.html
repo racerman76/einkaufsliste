@@ -42,6 +42,14 @@
 
   <dialog id="listDlg">
     <h2>Listen</h2>
+    <h3>Reihenfolge in „<span id="sortList"></span>“</h3>
+    <select id="sortSel" aria-label="Sortierung"></select>
+    <div id="catBox">
+      <p class="muted">Kategorien so ordnen, wie du durch den Laden gehst:</p>
+      <div id="catOrder"></div>
+      <button id="resetCats" type="button" class="secondary">Standard-Reihenfolge</button>
+    </div>
+    <hr>
     <button id="newList" class="primary">Neue Liste</button>
     <button id="renameList" class="secondary">Aktuelle Liste umbenennen</button>
     <button id="deleteList" class="danger">Aktuelle Liste löschen</button>

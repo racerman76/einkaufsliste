@@ -66,4 +66,13 @@ dialog label { display: block; margin-bottom: 10px; font-size: 14px; color: var(
 dialog label input { display: block; width: 100%; margin-top: 4px; color: var(--text); }
 dialog > button, #listDlg form button, #copyLink { display: block; width: 100%; margin-bottom: 8px; }
 #setForm .row button { flex: 1; }
+#listDlg { max-height: 90vh; overflow-y: auto; }
+#listDlg h3 { margin: 4px 0 8px; }
+#sortSel { width: 100%; margin-bottom: 8px; }
+.catrow { display: flex; align-items: center; gap: 6px; padding: 3px 0; border-bottom: 1px solid var(--line); }
+.catrow span { flex: 1; }
+.catrow button { min-width: 40px; min-height: 36px; padding: 4px; }
+.catrow button:disabled { opacity: .3; }
+#resetCats { width: 100%; margin-top: 8px; }
+#listDlg hr { border: none; border-top: 1px solid var(--line); margin: 14px 0; }
 #copyLink { margin-top: 12px; }
