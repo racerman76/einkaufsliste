@@ -6,12 +6,25 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '17 3 */3 * *'   # alle 3 Tage: Signierschlüssel im Cache frisch halten
 
 permissions:
   contents: write
 
 jobs:
+  schluessel-frisch-halten:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Signierschlüssel abrufen (zählt als Zugriff)
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/einkauf-signatur.keystore
+          key: einkauf-signatur-v1
+
   pruefen:
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.v.outputs.version }}
@@ -85,13 +98,38 @@ jobs:
           sed -i -E "s/versionName \"[^\"]*\"/versionName \"$VERSION\"/" android/app/build.gradle
           grep -E "versionCode|versionName" android/app/build.gradle
 
-      # Gleicher Signierschlüssel bei jedem Build, damit Updates über die alte Version passen.
-      # shortcut: GitHub löscht den Cache nach 7 Tagen ohne Build – dann neuer Schlüssel, App einmal neu installieren.
+      # Gleicher Signierschlüssel bei jedem Build, sonst meldet Android beim Update "App nicht installiert".
+      # Der Schlüssel liegt im Actions-Cache; der Job "schluessel-frisch-halten" greift alle 3 Tage darauf zu,
+      # damit GitHub ihn nicht nach 7 Tagen ohne Zugriff löscht.
       - name: Signierschlüssel aus dem Cache holen
         uses: actions/cache@v4
         with:
-          path: ~/.android/debug.keystore
-          key: android-debug-keystore
+          path: ~/einkauf-signatur.keystore
+          key: einkauf-signatur-v1
+
+      - name: Signierschlüssel anlegen (nur beim allerersten Mal) und im Build verwenden
+        run: |
+          KS=~/einkauf-signatur.keystore
+          if [ ! -f "$KS" ]; then
+            echo "::warning::Neuer Signierschlüssel erzeugt – diese Version muss einmal per Deinstallieren/Neu-Installieren aufgespielt werden."
+            keytool -genkeypair -keystore "$KS" -storepass android -alias einkauf -keypass android \
+              -keyalg RSA -keysize 2048 -validity 20000 -dname "CN=Einkaufsliste,O=racerman76,C=DE"
+          fi
+          keytool -list -keystore "$KS" -storepass android | grep -i fingerprint
+          cat >> android/app/build.gradle <<EOF
+
+          android {
+              signingConfigs {
+                  debug {
+                      storeFile file("$KS")
+                      storePassword "android"
+                      keyAlias "einkauf"
+                      keyPassword "android"
+                  }
+              }
+              buildTypes { debug { signingConfig signingConfigs.debug } }
+          }
+          EOF
 
       - name: APK bauen
         run: cd android && ./gradlew assembleDebug --no-daemon
