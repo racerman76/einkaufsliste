@@ -1,0 +1,8 @@
+{
+  "appId": "de.racerman76.einkaufsliste",
+  "appName": "Einkauf",
+  "webDir": "www",
+  "android": {
+    "adjustMarginsForEdgeToEdge": "force"
+  }
+}

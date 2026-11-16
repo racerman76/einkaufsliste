@@ -1,0 +1,11 @@
+{
+  "name": "einkaufsliste",
+  "private": true,
+  "type": "module",
+  "description": "Nur für den Android-Build (GitHub Actions); die Web-App braucht keine Pakete.",
+  "dependencies": {
+    "@capacitor/android": "^7.4.0",
+    "@capacitor/cli": "^7.4.0",
+    "@capacitor/core": "^7.4.0"
+  }
+}

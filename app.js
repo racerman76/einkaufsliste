@@ -20,9 +20,10 @@ const save = () => {
 };
 
 // Einrichtungslink: #setup=<base64 JSON> (Hash wird nie an einen Server geschickt)
+const parseSetup = s => JSON.parse(decodeURIComponent(escape(atob(s.split('#setup=')[1].trim()))));
 if (location.hash.startsWith('#setup=')) {
   try {
-    cfg = { ...JSON.parse(decodeURIComponent(escape(atob(location.hash.slice(7))))), user: cfg.user || '' };
+    cfg = { ...parseSetup(location.hash), user: cfg.user || '' };
     localStorage.setItem('ek-cfg', JSON.stringify(cfg));
   } catch { alert('Einrichtungslink ist ungültig.'); }
   history.replaceState(null, '', location.pathname);
@@ -193,8 +194,14 @@ $('settingsBtn').onclick = () => {
   $('setDlg').showModal();
 };
 const tokenOk = t => /^(github_pat_|ghp_)\w+$/.test(t);
-$('cfgToken').addEventListener('input', e =>
-  e.target.setCustomValidity(tokenOk(e.target.value.trim()) ? '' : 'Das ist kein GitHub-Token (beginnt mit github_pat_…).'));
+$('cfgToken').addEventListener('input', e => {
+  // In der Android-App öffnet der Einrichtungslink den Browser – daher Link hier einfügen können
+  if (e.target.value.includes('#setup=')) try {
+    const c = parseSetup(e.target.value);
+    $('cfgOwner').value = c.owner; $('cfgRepo').value = c.repo; e.target.value = c.token;
+  } catch {}
+  e.target.setCustomValidity(tokenOk(e.target.value.trim()) ? '' : 'Das ist kein GitHub-Token (beginnt mit github_pat_…) und kein Einrichtungslink.');
+});
 $('setDlg').addEventListener('close', () => {
   if ($('setDlg').returnValue !== 'save') return;
   const owner = $('cfgOwner').value.trim(), repo = $('cfgRepo').value.trim(), token = $('cfgToken').value.trim();
@@ -213,7 +220,7 @@ $('copyLink').onclick = async () => {
 window.addEventListener('online', () => sync());
 document.addEventListener('visibilitychange', () => { if (!document.hidden) sync(); });
 setInterval(() => { if (!document.hidden) sync(); }, 20000);
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {}); // in der Android-App gibt es kein sw.js
 
 render();
 if (!cfg.token) $('settingsBtn').click(); else sync();

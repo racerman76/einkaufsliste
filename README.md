@@ -48,8 +48,16 @@ Das Token kann nur dieses eine Repo lesen und schreiben, sonst nichts.
 - **Offline:** Alles funktioniert weiter, Änderungen werden später automatisch übertragen. Ändern zwei Geräte denselben Artikel, gewinnt die zuletzt gemachte Änderung.
 - **Einrichtungslink enthält das Token.** Nur an Familienmitglieder schicken. Wenn er in falsche Hände gerät: Token auf GitHub löschen, neues erstellen, neu verteilen.
 - **Verlauf:** Jede Änderung ist ein Commit im Daten-Repo – damit lässt sich notfalls jeder frühere Stand wiederherstellen.
-- **Updates der App:** Nach Code-Änderungen in `sw.js` die Versionsnummer `einkauf-v2` hochzählen, sonst hängen Handys an der alten Version.
+- **Updates der App:** Nach Code-Änderungen in `sw.js` die Versionsnummer `einkauf-v3` hochzählen, sonst hängen Handys an der alten Version.
 - **Token-Ablauf:** Läuft das Token ab, zeigt die App „Token ungültig“. Neues Token erstellen und unter ⚙ eintragen.
 
 ## Dateien
 `index.html`, `style.css`, `app.js` (Oberfläche und Abgleich), `merge.js` (Zusammenführung der Stände), `sw.js` (Offline), `manifest.webmanifest` + `icons/` (Installation). `merge.test.mjs` ist ein Selbsttest: `node merge.test.mjs`.
+
+## Android-App (APK)
+Bei jeder Änderung im Repo baut GitHub automatisch eine Android-App (Workflow `.github/workflows/android-apk.yml`).
+Download: https://github.com/racerman76/einkaufsliste/releases/latest/download/Einkaufsliste.apk
+
+- Auf dem Samsung den Link öffnen, Datei herunterladen, antippen. Beim ersten Mal „Installation aus dieser Quelle erlauben“ bestätigen.
+- Einrichten: ⚙ öffnen und den **Einrichtungslink** ins Feld „Zugriffstoken oder Einrichtungslink“ einfügen – Konto, Repo und Token werden übernommen.
+- Updates: neue APK einfach über die alte installieren. GitHub hebt den Signierschlüssel im Build-Cache auf; gab es 7 Tage keinen Build, entsteht ein neuer – dann die App einmal deinstallieren und neu installieren (die Liste bleibt auf GitHub erhalten).
