@@ -25,6 +25,7 @@
       <input id="name" list="known" placeholder="Artikel, z. B. Milch" aria-label="Artikel" required>
       <input id="qty" placeholder="Menge" aria-label="Menge">
       <select id="cat" aria-label="Kategorie"></select>
+      <button id="pickBtn" type="button" class="icon" title="Aus Symbolen auswählen" aria-label="Aus Symbolen auswählen">🧺</button>
       <button type="submit" class="primary">+</button>
     </form>
     <datalist id="known"></datalist>
@@ -43,6 +44,15 @@
       <button id="clearDone" class="secondary">Erledigte entfernen</button>
     </details>
   </main>
+
+  <dialog id="pickDlg">
+    <div class="pickhead">
+      <input id="pickSearch" type="search" placeholder="Suchen …" aria-label="Artikel suchen">
+      <button id="pickDone" type="button" class="primary" autofocus>Fertig</button>
+    </div>
+    <p class="muted pickhint">Antippen = auf die Liste · nochmal antippen = wieder runter</p>
+    <div id="pickGrid"></div>
+  </dialog>
 
   <dialog id="listDlg">
     <h2>Listen</h2>

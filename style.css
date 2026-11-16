@@ -6,6 +6,7 @@
   :root { --bg: #151816; --card: #1f2421; --text: #e8ece9; --muted: #9aa49e; --line: #333a36; --green: #4caf73; }
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; } /* sonst überschreibt z. B. .upd {display:flex} das Ausblenden */
 html { -webkit-text-size-adjust: 100%; } /* iPhone: Schrift beim Drehen nicht aufblähen */
 body { margin: 0; font: 17px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); }
 header { position: sticky; top: 0; z-index: 1; background: var(--card); border-bottom: 1px solid var(--line);
@@ -74,6 +75,21 @@ dialog > button, #listDlg form button, #copyLink { display: block; width: 100%; 
 .catrow button { min-width: 40px; min-height: 36px; padding: 4px; }
 .catrow button:disabled { opacity: .3; }
 #resetCats { width: 100%; margin-top: 8px; }
+/* Symbol-Auswahl */
+#pickDlg { width: min(96vw, 760px); height: min(92vh, 900px); padding: 12px; }
+#pickDlg[open] { display: flex; flex-direction: column; }
+.pickhead { display: flex; gap: 8px; }
+.pickhead input { flex: 1; min-width: 0; }
+.pickhint { margin: 6px 2px; font-size: 13px; }
+#pickGrid { flex: 1; overflow-y: auto; }
+#pickGrid h3 { margin: 12px 2px 6px; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 6px; }
+.tile span:last-child { hyphens: auto; overflow-wrap: anywhere; max-width: 100%; }
+.tile { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px; min-height: 76px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px; font-size: 12.5px; line-height: 1.2; text-align: center; }
+.tile .ic { font-size: 30px; line-height: 1.1; }
+.tile.on { background: var(--green); border-color: var(--green); color: #fff; }
+.item .ic { font-size: 22px; flex: none; width: 28px; text-align: center; }
 .upd { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding: 6px 6px 6px 12px;
   border-radius: 10px; background: color-mix(in srgb, var(--green) 15%, var(--card)); font-size: 14px; }
 .upd span { flex: 1; }

@@ -1,6 +1,7 @@
 import { merge, sameDoc, emptyDoc } from './merge.js';
 import { SORTS, catOrder, ordnen, verschieben } from './sort.js';
 import { VERSION, neuer } from './version.js';
+import { CATALOG, iconFor, findCatalog } from './catalog.js';
 
 const CATS = ['Obst & Gemüse', 'Brot & Backwaren', 'Kühlregal', 'Fleisch & Fisch', 'Tiefkühl',
   'Trockenwaren', 'Getränke', 'Drogerie', 'Haushalt', 'Sonstiges'];
@@ -83,7 +84,8 @@ function row(i) {
   del.onclick = () => touch(i, { deleted: true });
   const name = el('span', { className: 'name', textContent: i.name });
   if (i.by && i.by !== cfg.user) name.append(el('span', { className: 'by', textContent: i.by }));
-  return el('div', { className: 'item' }, cb, name, qty, del);
+  const ic = el('span', { className: 'ic', textContent: iconFor(i.name, i.cat), ariaHidden: 'true' });
+  return el('div', { className: 'item' }, cb, ic, name, qty, del);
 }
 
 function render() {
@@ -101,9 +103,45 @@ function render() {
   $('doneBox').hidden = done.length === 0;
   $('doneCount').textContent = done.length;
   $('done').replaceChildren(...done.sort((a, b) => b.updatedAt - a.updatedAt).map(row));
-  const names = [...new Set(Object.values(doc.items).map(i => i.name))].sort((a, b) => a.localeCompare(b, 'de'));
+  const names = [...new Set([...Object.values(doc.items).map(i => i.name), ...CATALOG.map(e => e.name)])]
+    .sort((a, b) => a.localeCompare(b, 'de'));
   $('known').replaceChildren(...names.map(n => el('option', { value: n })));
+  if ($('pickDlg').open) renderPicker();
 }
+
+// ---------- Symbol-Auswahl ----------
+// Kachel antippen: Artikel auf die Liste; ist er schon offen drauf, wieder entfernen
+function renderPicker() {
+  const q = $('pickSearch').value.trim().toLowerCase();
+  const offen = new Map(items().filter(i => !i.done).map(i => [i.name.toLowerCase(), i]));
+  // Eigene Artikel (nicht im Katalog), zuletzt benutzte zuerst
+  const eigene = new Map();
+  for (const i of Object.values(doc.items).sort((a, b) => b.updatedAt - a.updatedAt))
+    if (!findCatalog(i.name) && !eigene.has(i.name.toLowerCase())) eigene.set(i.name.toLowerCase(), { name: i.name, cat: i.cat || 'Sonstiges' });
+  const alle = [...[...eigene.values()].slice(0, 24).map(e => ({ ...e, eigen: true })), ...CATALOG]
+    .filter(e => !q || e.name.toLowerCase().includes(q));
+  const tile = e => {
+    const on = offen.get(e.name.toLowerCase());
+    const b = el('button', { type: 'button', className: 'tile' + (on ? ' on' : ''), ariaPressed: on ? 'true' : 'false' },
+      el('span', { className: 'ic', textContent: e.icon || iconFor(e.name, e.cat) }), el('span', { textContent: e.name }));
+    b.onclick = () => on ? touch(on, { deleted: true }) : addItem(e.name, '', e.cat);
+    return b;
+  };
+  const gruppen = [['Eigene Artikel', alle.filter(e => e.eigen)],
+    ...catOrder(doc.lists[cur], CATS).map(c => [c, alle.filter(e => !e.eigen && e.cat === c)])];
+  const teile = gruppen.filter(([, g]) => g.length)
+    .flatMap(([c, g]) => [el('h3', { textContent: c }), el('div', { className: 'tiles' }, ...g.map(tile))]);
+  // Suchbegriff ohne Treffer: als neuen Artikel anbieten
+  if (q && !alle.some(e => e.name.toLowerCase() === q)) {
+    const neu = el('button', { type: 'button', className: 'secondary', textContent: `„${$('pickSearch').value.trim()}“ hinzufügen` });
+    neu.onclick = () => { addItem($('pickSearch').value, '', 'Sonstiges'); $('pickSearch').value = ''; renderPicker(); };
+    teile.unshift(neu);
+  }
+  $('pickGrid').replaceChildren(...teile);
+}
+$('pickBtn').onclick = () => { $('pickSearch').value = ''; renderPicker(); $('pickDlg').showModal(); };
+$('pickSearch').oninput = renderPicker;
+$('pickDone').onclick = () => $('pickDlg').close();
 
 function status(kind, text) { $('syncDot').className = 'dot ' + kind; $('syncText').textContent = text; }
 
@@ -155,7 +193,7 @@ async function sync() {
 }
 
 // ---------- Bedienung ----------
-$('name').addEventListener('input', e => { const c = lastCat(e.target.value.trim()); if (c) $('cat').value = c; });
+$('name').addEventListener('input', e => { const v = e.target.value.trim(); const c = lastCat(v) || findCatalog(v)?.cat; if (c) $('cat').value = c; });
 $('addForm').onsubmit = e => {
   e.preventDefault();
   addItem($('name').value, $('qty').value.trim(), $('cat').value);

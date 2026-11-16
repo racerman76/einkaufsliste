@@ -10,4 +10,6 @@ assert.equal(neuer('1.3.9', '1.4.0'), false);
 assert.equal(neuer('1.4.0.1', '1.4.0'), true);
 assert.equal(neuer('2', '1.9.9'), true);
 assert.equal(neuer('android-build-9', '1.4.0'), false);
+assert.equal(neuer('', '1.4.0'), false);
+assert.equal(neuer(undefined, '1.4.0'), false);
 console.log('version: alle Tests ok');
