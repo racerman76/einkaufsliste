@@ -1,0 +1,54 @@
+:root {
+  --green: #2f7d4f; --bg: #f6f7f5; --card: #fff; --text: #1d2420; --muted: #6b746f; --line: #e2e6e3; --red: #b33a3a;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #151816; --card: #1f2421; --text: #e8ece9; --muted: #9aa49e; --line: #333a36; --green: #4caf73; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; font: 17px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); }
+header { position: sticky; top: 0; z-index: 1; background: var(--card); border-bottom: 1px solid var(--line);
+  padding: max(8px, env(safe-area-inset-top)) 12px 8px; }
+main { max-width: 720px; margin: 0 auto; padding: 8px 12px 80px; }
+header > * { max-width: 720px; margin: 0 auto; }
+.row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.row:last-child { margin-bottom: 0; }
+input, select, button { font: inherit; color: inherit; border: 1px solid var(--line); border-radius: 10px;
+  background: var(--bg); padding: 10px 12px; min-height: 44px; }
+#listSel { flex: 1; font-weight: 600; }
+.add #name { flex: 1; min-width: 0; }
+.add #qty { width: 5.5em; }
+.add #cat { width: 8em; }
+@media (max-width: 480px) {
+  .add { flex-wrap: wrap; }
+  .add #name { flex: 1 1 100%; }
+  .add #qty { flex: 1; } .add #cat { flex: 2; }
+}
+button { cursor: pointer; }
+button.primary { background: var(--green); color: #fff; border-color: var(--green); font-weight: 600; min-width: 44px; }
+button.secondary { background: var(--card); }
+button.danger { background: var(--card); color: var(--red); border-color: var(--red); }
+button.icon { min-width: 44px; background: var(--card); }
+.sync { display: flex; align-items: center; gap: 6px; background: var(--card); font-size: 14px; color: var(--muted); }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); }
+.dot.ok { background: var(--green); } .dot.busy { background: #d9a300; } .dot.err { background: var(--red); }
+h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 18px 4px 6px; }
+.item { display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--line);
+  border-radius: 12px; padding: 4px 6px 4px 12px; margin-bottom: 6px; }
+.item input[type=checkbox] { width: 24px; height: 24px; min-height: 0; accent-color: var(--green); flex: none; }
+.item .name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.item .by { font-size: 12px; color: var(--muted); display: block; }
+.item .qty { border: none; background: none; color: var(--muted); padding: 6px; min-height: 0; }
+.item .del { border: none; background: none; color: var(--muted); min-width: 40px; }
+#done .item { opacity: .6; } #done .item .name { text-decoration: line-through; }
+details summary { cursor: pointer; color: var(--muted); margin: 20px 4px 8px; }
+.muted { color: var(--muted); font-size: 14px; }
+dialog { border: 1px solid var(--line); border-radius: 16px; background: var(--card); color: var(--text);
+  width: min(92vw, 420px); padding: 16px; }
+dialog::backdrop { background: rgba(0,0,0,.4); }
+dialog h2 { margin: 0 0 12px; font-size: 20px; }
+dialog label { display: block; margin-bottom: 10px; font-size: 14px; color: var(--muted); }
+dialog label input { display: block; width: 100%; margin-top: 4px; color: var(--text); }
+dialog > button, #listDlg form button, #copyLink { display: block; width: 100%; margin-bottom: 8px; }
+#setForm .row button { flex: 1; }
+#copyLink { margin-top: 12px; }

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Einkaufsliste</title>
+  <meta name="theme-color" content="#2f7d4f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Einkauf">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="row">
+      <select id="listSel" aria-label="Liste auswählen"></select>
+      <button id="listMenuBtn" class="icon" title="Listen verwalten" aria-label="Listen verwalten">☰</button>
+      <button id="syncBtn" class="sync" title="Jetzt abgleichen"><span id="syncDot" class="dot"></span><span id="syncText">…</span></button>
+      <button id="settingsBtn" class="icon" title="Einstellungen" aria-label="Einstellungen">⚙</button>
+    </div>
+    <form id="addForm" class="row add" autocomplete="off">
+      <input id="name" list="known" placeholder="Artikel, z. B. Milch" aria-label="Artikel" required>
+      <input id="qty" placeholder="Menge" aria-label="Menge">
+      <select id="cat" aria-label="Kategorie"></select>
+      <button type="submit" class="primary">+</button>
+    </form>
+    <datalist id="known"></datalist>
+  </header>
+
+  <main>
+    <div id="open"></div>
+    <p id="empty" class="muted" hidden>Die Liste ist leer.</p>
+    <details id="doneBox" hidden>
+      <summary>Im Wagen (<span id="doneCount">0</span>)</summary>
+      <div id="done"></div>
+      <button id="clearDone" class="secondary">Erledigte entfernen</button>
+    </details>
+  </main>
+
+  <dialog id="listDlg">
+    <h2>Listen</h2>
+    <button id="newList" class="primary">Neue Liste</button>
+    <button id="renameList" class="secondary">Aktuelle Liste umbenennen</button>
+    <button id="deleteList" class="danger">Aktuelle Liste löschen</button>
+    <form method="dialog"><button class="secondary">Schließen</button></form>
+  </dialog>
+
+  <dialog id="setDlg">
+    <form id="setForm" method="dialog">
+      <h2>Einstellungen</h2>
+      <label>Dein Name <input id="cfgUser" placeholder="z. B. Thomas"></label>
+      <label>GitHub-Konto (Besitzer) <input id="cfgOwner" placeholder="racerman76" required></label>
+      <label>Daten-Repo <input id="cfgRepo" placeholder="einkaufsliste-daten" required></label>
+      <label>Zugriffstoken <input id="cfgToken" type="password" placeholder="github_pat_…" required></label>
+      <p class="muted">Das Token bleibt nur auf diesem Gerät gespeichert.</p>
+      <div class="row">
+        <button value="save" class="primary">Speichern</button>
+        <button value="cancel" formnovalidate class="secondary">Abbrechen</button>
+      </div>
+      <button type="button" id="copyLink" class="secondary">Einrichtungslink für Familie kopieren</button>
+    </form>
+  </dialog>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
