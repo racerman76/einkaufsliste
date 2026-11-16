@@ -60,4 +60,5 @@ Download: https://github.com/racerman76/einkaufsliste/releases/latest/download/E
 
 - Auf dem Samsung den Link öffnen, Datei herunterladen, antippen. Beim ersten Mal „Installation aus dieser Quelle erlauben“ bestätigen.
 - Einrichten: ⚙ öffnen und den **Einrichtungslink** ins Feld „Zugriffstoken oder Einrichtungslink“ einfügen – Konto, Repo und Token werden übernommen.
+- Alle Versionen bleiben unter https://github.com/racerman76/einkaufsliste/releases erhalten (Build-Nummer und Datum im Titel), falls man zurück will.
 - Updates: neue APK einfach über die alte installieren. GitHub hebt den Signierschlüssel im Build-Cache auf; gab es 7 Tage keinen Build, entsteht ein neuer – dann die App einmal deinstallieren und neu installieren (die Liste bleibt auf GitHub erhalten).
