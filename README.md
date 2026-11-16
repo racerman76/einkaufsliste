@@ -48,7 +48,7 @@ Das Token kann nur dieses eine Repo lesen und schreiben, sonst nichts.
 - **Offline:** Alles funktioniert weiter, Änderungen werden später automatisch übertragen. Ändern zwei Geräte denselben Artikel, gewinnt die zuletzt gemachte Änderung.
 - **Einrichtungslink enthält das Token.** Nur an Familienmitglieder schicken. Wenn er in falsche Hände gerät: Token auf GitHub löschen, neues erstellen, neu verteilen.
 - **Verlauf:** Jede Änderung ist ein Commit im Daten-Repo – damit lässt sich notfalls jeder frühere Stand wiederherstellen.
-- **Updates der App:** Nach Code-Änderungen in `sw.js` die Versionsnummer `einkauf-v6` hochzählen, sonst hängen Handys an der alten Version.
+- **Updates der App:** Nach Code-Änderungen in `sw.js` die Versionsnummer `einkauf-v7` hochzählen, sonst hängen Handys an der alten Version.
 - **Token-Ablauf:** Läuft das Token ab, zeigt die App „Token ungültig“. Neues Token erstellen und unter ⚙ eintragen.
 
 ## Dateien
@@ -60,5 +60,12 @@ Download: https://github.com/racerman76/einkaufsliste/releases/latest/download/E
 
 - Auf dem Samsung den Link öffnen, Datei herunterladen, antippen. Beim ersten Mal „Installation aus dieser Quelle erlauben“ bestätigen.
 - Einrichten: ⚙ öffnen und den **Einrichtungslink** ins Feld „Zugriffstoken oder Einrichtungslink“ einfügen – Konto, Repo und Token werden übernommen.
-- Alle Versionen bleiben unter https://github.com/racerman76/einkaufsliste/releases erhalten (Build-Nummer und Datum im Titel), falls man zurück will.
+- Alle Versionen bleiben unter https://github.com/racerman76/einkaufsliste/releases erhalten (z. B. „Einkaufsliste 1.4.0“), falls man zurück will.
 - Updates: neue APK einfach über die alte installieren. GitHub hebt den Signierschlüssel im Build-Cache auf; gab es 7 Tage keinen Build, entsteht ein neuer – dann die App einmal deinstallieren und neu installieren (die Liste bleibt auf GitHub erhalten).
+
+## Versionen und Updates
+- Die Versionsnummer steht in `version.js` (`VERSION = '1.4.0'`). **Bei jeder Änderung an der App hochzählen** – nur dann baut GitHub ein neues Release `v<Version>`. Änderungen ohne neue Nummer (z. B. nur README) erzeugen kein Release.
+- In der App unter ⚙ steht die aktuelle Version, dazu „Nach Updates suchen“. Beim Start prüft die App selbst und zeigt oben eine Leiste, wenn es eine neuere Version gibt:
+  - **Android:** „Herunterladen“ lädt die neue APK im Browser – Datei antippen und über die alte installieren.
+  - **iPhone/PC:** „Neu laden“ holt die neue Version.
+- Eine ältere Version auf Android installieren: erst die App deinstallieren (die Liste bleibt auf GitHub).

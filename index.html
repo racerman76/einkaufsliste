@@ -28,6 +28,10 @@
       <button type="submit" class="primary">+</button>
     </form>
     <datalist id="known"></datalist>
+    <div id="updBar" class="upd" hidden>
+      <span id="updText"></span>
+      <button id="updBtn" type="button" class="primary">Aktualisieren</button>
+    </div>
   </header>
 
   <main>
@@ -69,6 +73,9 @@
         <button value="cancel" formnovalidate class="secondary">Abbrechen</button>
       </div>
       <button type="button" id="copyLink" class="secondary">Einrichtungslink für Familie kopieren</button>
+      <hr>
+      <p id="verText" class="muted"></p>
+      <button type="button" id="checkUpd" class="secondary">Nach Updates suchen</button>
     </form>
   </dialog>
 

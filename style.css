@@ -74,5 +74,9 @@ dialog > button, #listDlg form button, #copyLink { display: block; width: 100%; 
 .catrow button { min-width: 40px; min-height: 36px; padding: 4px; }
 .catrow button:disabled { opacity: .3; }
 #resetCats { width: 100%; margin-top: 8px; }
-#listDlg hr { border: none; border-top: 1px solid var(--line); margin: 14px 0; }
+.upd { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding: 6px 6px 6px 12px;
+  border-radius: 10px; background: color-mix(in srgb, var(--green) 15%, var(--card)); font-size: 14px; }
+.upd span { flex: 1; }
+#checkUpd { display: block; width: 100%; }
+#setForm hr, #listDlg hr { border: none; border-top: 1px solid var(--line); margin: 14px 0; }
 #copyLink { margin-top: 12px; }

@@ -1,5 +1,6 @@
 import { merge, sameDoc, emptyDoc } from './merge.js';
 import { SORTS, catOrder, ordnen, verschieben } from './sort.js';
+import { VERSION, neuer } from './version.js';
 
 const CATS = ['Obst & Gemüse', 'Brot & Backwaren', 'Kühlregal', 'Fleisch & Fisch', 'Tiefkühl',
   'Trockenwaren', 'Getränke', 'Drogerie', 'Haushalt', 'Sonstiges'];
@@ -238,6 +239,37 @@ $('copyLink').onclick = async () => {
   catch { prompt('Link kopieren:', link); }
 };
 
+// ---------- Version und Update ----------
+const APP_REPO = 'racerman76/einkaufsliste';
+const isApk = !!window.Capacitor?.isNativePlatform?.();
+let updVer = null;
+$('verText').textContent = `Version ${VERSION} (${isApk ? 'Android-App' : 'Web-App'})`;
+
+async function checkUpdate(manual) {
+  try {
+    const r = await fetch(`https://api.github.com/repos/${APP_REPO}/releases/latest`, { cache: 'no-store' });
+    if (!r.ok) throw new Error(r.status);
+    const tag = (await r.json()).tag_name || '';
+    updVer = neuer(tag, VERSION) ? tag.replace(/^v/, '') : null;
+  } catch { if (manual) alert('Update-Prüfung nicht möglich – keine Verbindung zu GitHub?'); return; }
+  $('updBar').hidden = !updVer;
+  if (updVer) {
+    $('updText').textContent = `Version ${updVer} ist da (du hast ${VERSION}).`;
+    $('updBtn').textContent = isApk ? 'Herunterladen' : 'Neu laden';
+  } else if (manual) alert(`Du hast die neueste Version (${VERSION}).`);
+}
+$('checkUpd').onclick = () => checkUpdate(true);
+$('updBtn').onclick = async () => {
+  if (isApk) {
+    // Öffnet den Browser; danach die geladene Datei antippen und über die alte App installieren
+    alert('Die neue Version wird im Browser heruntergeladen. Danach die Datei antippen und installieren.');
+    location.href = `https://github.com/${APP_REPO}/releases/download/v${updVer}/Einkaufsliste.apk`;
+  } else {
+    try { await (await navigator.serviceWorker?.getRegistration())?.update(); } catch {}
+    location.reload();
+  }
+};
+
 window.addEventListener('online', () => sync());
 document.addEventListener('visibilitychange', () => { if (!document.hidden) sync(); });
 setInterval(() => { if (!document.hidden) sync(); }, 20000);
@@ -251,3 +283,4 @@ if (!cfg.token) try {
 
 render();
 if (!cfg.token) $('settingsBtn').click(); else sync();
+checkUpdate(false);
