@@ -84,6 +84,7 @@ dialog:has(> .xbtn) { position: fixed; }
   padding: 0; border-radius: 50%; border: none; background: transparent; color: var(--muted); font-size: 20px; line-height: 1; }
 .xbtn:hover, .xbtn:focus-visible { background: var(--bg); color: var(--text); }
 dialog h2.griff { padding-right: 40px; }
+.xbtn.inline { position: static; flex: none; align-self: center; }
 /* Neuigkeiten */
 #newsDlg { width: min(96vw, 640px); max-height: 90vh; padding: 14px; }
 #newsDlg[open] { display: flex; flex-direction: column; }

@@ -3,6 +3,13 @@
 // Aus diesen Texten entstehen die Release-Beschreibungen auf GitHub und das Fenster „Neuigkeiten“ in der App.
 export const AENDERUNGEN = [
   {
+    version: '1.8.2', titel: 'Symbol-Auswahl mit ✕ schließen',
+    punkte: [
+      'Die Symbol-Auswahl 🧺 hat oben rechts jetzt ebenfalls ein ✕ und schließt damit sofort, ohne etwas zu bestätigen.',
+      'Das ✕ ersetzt den bisherigen Knopf „Fertig“ – so ist im Kopf der Auswahl mehr Platz für das Suchfeld.',
+    ],
+  },
+  {
     version: '1.8.1', titel: 'Fenster schnell schließen',
     punkte: [
       'Alle verschiebbaren Fenster haben oben rechts ein ✕ zum schnellen Schließen: „Artikel ändern“, „Einstellungen“, „Listen“, „Neuigkeiten“ und „Auswahl-Eintrag ändern“.',
