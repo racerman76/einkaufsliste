@@ -15,13 +15,13 @@ export const CATALOG = [
     🍄 Pilze, 🌽 Mais, 🥑 Avocado`),
   ...k('Brot & Backwaren', `🍞 Brot, 🥖 Brötchen, 🍞 Toast, 🥐 Croissants, 🥨 Brezeln, 🍰 Kuchen`),
   ...k('Kühlregal', `🥛 Milch, 🧈 Butter, 🧀 Käse, 🥣 Joghurt, 🥣 Quark, 🥛 Sahne, 🥚 Eier, 🧈 Margarine, 🧀 Frischkäse`),
-  ...k('Fleisch & Fisch', `🍗 Hähnchen, 🥩 Hackfleisch, 🥩 Steak, 🌭 Wurst, 🥓 Schinken, 🥓 Speck, 🐟 Fisch, 🐟 Lachs, 🦐 Garnelen`),
+  ...k('Fleisch & Fisch', `🍗 Hähnchen, 🥩 Hackfleisch, 🥩 Steak, 🌭 Wurst, 🥪 Aufschnitt, 🍖 Salami, 🌭 Bratwurst, 🌭 Wiener, 🍖 Leberwurst, 🥓 Schinken, 🥓 Speck, 🐟 Fisch, 🐟 Lachs, 🦐 Garnelen`),
   ...k('Tiefkühl', `🍕 Pizza, 🍟 Pommes, 🍨 Eis, 🐟 Fischstäbchen, 🧊 TK-Gemüse`),
   ...k('Trockenwaren', `🍝 Nudeln, 🍚 Reis, 🌾 Mehl, 🍬 Zucker, 🧂 Salz, 🫒 Öl, 🥣 Müsli, ☕ Kaffee, 🍵 Tee, 🍯 Honig,
     🫙 Marmelade, 🍫 Schokolade, 🍿 Chips, 🍪 Kekse, 🥫 Konserven, 🥫 Ketchup`),
   ...k('Getränke', `💧 Wasser, 🧃 Saft, 🥤 Cola, 🍺 Bier, 🍷 Wein, 🍾 Sekt`),
   ...k('Drogerie', `🪥 Zahnpasta, 🧴 Shampoo, 🧴 Duschgel, 🧼 Seife, 🧻 Toilettenpapier, 🤧 Taschentücher, 🧴 Deo, 🪒 Rasierer`),
-  ...k('Haushalt', `🧽 Spülmittel, 🧺 Waschmittel, 🗑️ Müllbeutel, 🧻 Küchenrolle, 🔋 Batterien, 💡 Glühbirne, 🕯️ Kerzen`),
+  ...k('Haushalt', `🧽 Spülmittel, 🧺 Waschmittel, 🗑️ Müllbeutel, 🧻 Küchenrolle, 🔋 Batterien, 💡 Glühlampe, 🕯️ Kerzen`),
   ...k('Sonstiges', `💐 Blumen, 🐾 Tierfutter, 📰 Zeitung`),
 ];
 
