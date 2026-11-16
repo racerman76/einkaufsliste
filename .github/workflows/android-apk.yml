@@ -66,12 +66,16 @@ jobs:
       - name: APK bauen
         run: cd android && ./gradlew assembleDebug --no-daemon
 
+      # Jede Version bleibt als eigenes Release erhalten; die neueste ist "Latest",
+      # daher funktioniert .../releases/latest/download/Einkaufsliste.apk weiter.
       - name: Als Release veröffentlichen
         env:
           GH_TOKEN: ${{ github.token }}
+          AENDERUNG: ${{ github.event.head_commit.message || 'Manuell gestartet' }}
         run: |
           cp android/app/build/outputs/apk/debug/app-debug.apk Einkaufsliste.apk
-          gh release delete android --yes --cleanup-tag || true
-          gh release create android Einkaufsliste.apk \
-            --title "Android-App (Build ${{ github.run_number }})" \
-            --notes "Auf dem Samsung herunterladen und installieren. Neue Versionen einfach drüber installieren."
+          gh release create "android-build-${{ github.run_number }}" Einkaufsliste.apk --latest \
+            --title "Android-App Build ${{ github.run_number }} ($(TZ=Europe/Berlin date '+%d.%m.%Y %H:%M'))" \
+            --notes "Änderung: $AENDERUNG
+
+          Auf dem Samsung herunterladen und über die alte Version installieren."
