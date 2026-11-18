@@ -3,6 +3,16 @@
 // Aus diesen Texten entstehen die Release-Beschreibungen auf GitHub und das Fenster „Neuigkeiten“ in der App.
 export const AENDERUNGEN = [
   {
+    version: '1.10.0', titel: 'Spracheingabe',
+    punkte: [
+      'Neuer Knopf 🎤 neben 🧺: antippen und mehrere Artikel auf einmal ansagen, z. B. „Milch, zwei Liter Saft, 500 Gramm Hack und Brot“.',
+      'Mengen und Einheiten werden erkannt (Liter, Gramm, Kilo, Packung, Flasche, Dose, Becher, Kasten …), auch Kommazahlen wie „1,5 Kilo“.',
+      'Die Artikel landen mit Kategorie und Symbol bzw. eigenem Bild aus der Auswahl auf der Liste – auch bei Einzahl/Mehrzahl („Apfel“ findet „Äpfel“).',
+      'Unten erscheint, was hinzugefügt wurde, mit „Rückgängig“, falls etwas falsch verstanden wurde.',
+      'Android-App: nutzt das Google-Sprachfenster und fragt beim ersten Mal nach der Mikrofon-Erlaubnis. Am PC und im Handy-Browser läuft die Erkennung im Browser.',
+    ],
+  },
+  {
     version: '1.9.0', titel: 'Eigene Bilder für Artikel',
     punkte: [
       'Im Fenster „Auswahl-Eintrag ändern“ (🧺 → ✎ → Eintrag antippen) gibt es „📷 Foto“ für ein Foto mit der Kamera und „🖼 Galerie“ für ein vorhandenes Bild.',

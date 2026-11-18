@@ -26,6 +26,7 @@
       <input id="qty" placeholder="Menge" aria-label="Menge" enterkeyhint="done" autocomplete="off" inputmode="decimal">
       <select id="cat" aria-label="Kategorie"></select>
       <button id="pickBtn" type="button" class="icon" title="Aus Symbolen auswählen" aria-label="Aus Symbolen auswählen">🧺</button>
+      <button id="micBtn" type="button" class="icon" title="Artikel ansagen" aria-label="Artikel ansagen">🎤</button>
       <button type="submit" class="primary">+</button>
     </form>
     <div id="updBar" class="upd" hidden>
@@ -138,6 +139,12 @@
       <button type="button" id="newsBtn" class="secondary wide">Neuigkeiten – was hat sich geändert?</button>
     </form>
   </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden>
+    <span id="toastText"></span>
+    <button id="toastUndo" type="button" class="secondary" hidden>Rückgängig</button>
+    <button id="toastZu" type="button" class="xbtn inline" aria-label="Hinweis schließen">✕</button>
+  </div>
 
   <script type="module" src="app.js"></script>
 </body>

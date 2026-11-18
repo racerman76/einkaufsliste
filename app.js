@@ -3,6 +3,7 @@ import { SORTS, catOrder, ordnen, verschieben } from './sort.js';
 import { VERSION, neuer } from './version.js';
 import { KAT_LISTE, wirksamerKatalog, sucheKat, symbolFuer, eigeneArtikel, ausgeblendet } from './catalog.js';
 import { AENDERUNGEN } from './changelog.js';
+import { zerlegen, normiert } from './sprache.js';
 
 const CATS = ['Obst & Gemüse', 'Brot & Backwaren', 'Kühlregal', 'Fleisch & Fisch', 'Tiefkühl',
   'Trockenwaren', 'Getränke', 'Drogerie', 'Haushalt', 'Sonstiges'];
@@ -384,6 +385,84 @@ $('copyLink').onclick = async () => {
   try { await navigator.clipboard.writeText(link); alert('Link kopiert. Nur an Familienmitglieder schicken – er enthält das Token.'); }
   catch { prompt('Link kopieren:', link); }
 };
+
+// ---------- Spracheingabe ----------
+// Mehrere Artikel ansagen: "Milch, zwei Liter Saft und Brot". Erkennung im Browser über die
+// eingebaute Spracherkennung, in der Android-App über die Erweiterung @capacitor-community/speech-recognition.
+const WebSR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let toastTimer = null, rueckgaengig = null;
+function toast(text, undo, dauer = 8000) {
+  $('toastText').textContent = text;
+  rueckgaengig = undo || null; $('toastUndo').hidden = !undo;
+  $('toast').hidden = false;
+  clearTimeout(toastTimer);
+  if (dauer) toastTimer = setTimeout(() => { $('toast').hidden = true; rueckgaengig = null; }, dauer);
+}
+$('toastZu').onclick = () => { $('toast').hidden = true; rueckgaengig = null; };
+$('toastUndo').onclick = () => { rueckgaengig?.(); $('toast').hidden = true; rueckgaengig = null; };
+
+// Gesprochenen Text auf die Liste setzen – mit Kategorie und Schreibweise aus der Auswahl
+function spracheVerarbeiten(text) {
+  const artikel = zerlegen(text);
+  if (!artikel.length) return toast(`Nichts erkannt in „${text}“. Bitte nochmal versuchen.`);
+  const vorher = new Map(items().map(i => [i.id, { done: i.done, qty: i.qty, cat: i.cat }]));
+  for (const a of artikel) {
+    const k = KAT.find(e => normiert(e.name) === normiert(a.name));
+    a.name = k ? k.name : a.name; // Schreibweise aus der Auswahl ("Apfel" → "Äpfel")
+    addItem(a.name, a.qty, k?.cat || lastCat(a.name) || 'Sonstiges');
+  }
+  const neu = items().filter(i => !vorher.has(i.id));
+  const reaktiviert = items().filter(i => vorher.has(i.id) && vorher.get(i.id).done && !i.done);
+  toast(`Hinzugefügt: ${artikel.map(a => a.qty ? `${a.name} (${a.qty})` : a.name).join(', ')}`, () => {
+    for (const i of neu) touch(i, { deleted: true });
+    for (const i of reaktiviert) touch(i, vorher.get(i.id));
+  });
+}
+
+let hoertZu = false, webRec = null;
+function micZustand(an) { hoertZu = an; $('micBtn').classList.toggle('hoert', an); $('micBtn').ariaPressed = String(an); }
+
+async function sprechen() {
+  if (isApk) {
+    const nat = (methode, daten = {}) => window.Capacitor.nativePromise('SpeechRecognition', methode, daten);
+    try {
+      const recht = await nat('requestPermissions');
+      if (recht?.speechRecognition !== 'granted') return toast('Ohne Mikrofon-Erlaubnis geht die Spracheingabe nicht. Erlauben unter Einstellungen → Apps → Einkauf → Berechtigungen.');
+      // popup: zeigt das Google-Sprachfenster; Ergebnis kommt erst nach dem Sprechen zurück
+      const r = await nat('start', { language: 'de-DE', maxResults: 1, partialResults: false, popup: true,
+        prompt: 'Artikel ansagen, z. B. „Milch, 2 Liter Saft und Brot“' });
+      const text = r?.matches?.[0];
+      if (text) spracheVerarbeiten(text);
+    } catch (e) {
+      const m = String(e?.message || e);
+      if (/not available|nicht verfügbar|unavailable/i.test(m)) toast('Auf diesem Handy ist keine Spracherkennung verfügbar. Bitte die Google-App bzw. „Google Sprachdienste“ installieren.');
+      else if (!/^0$/.test(m)) toast('Spracheingabe abgebrochen.'); // 0 = Fenster ohne Ergebnis geschlossen
+    }
+    return;
+  }
+  if (!WebSR) return toast('Dieser Browser kann keine Spracheingabe. Tipp: Ins Artikelfeld tippen und das Mikrofon der Tastatur nutzen.', null, 10000);
+  if (hoertZu) { webRec?.stop(); return; } // nochmal tippen = fertig
+  webRec = new WebSR();
+  Object.assign(webRec, { lang: 'de-DE', interimResults: true, continuous: false, maxAlternatives: 1 });
+  let endText = '';
+  webRec.onresult = e => {
+    let zwischen = ''; endText = '';
+    for (const r of e.results) (r.isFinal ? (endText += r[0].transcript + ' ') : (zwischen += r[0].transcript));
+    toast(`🎤 ${(endText + zwischen).trim() || '…'}`, null, 0);
+  };
+  webRec.onerror = e => {
+    micZustand(false);
+    toast(e.error === 'not-allowed' || e.error === 'service-not-allowed'
+      ? 'Mikrofon nicht erlaubt. Bitte im Browser bzw. in den Handy-Einstellungen das Mikrofon für diese Seite erlauben.'
+      : e.error === 'no-speech' ? 'Nichts gehört – bitte nochmal auf 🎤 tippen und sprechen.'
+      : `Spracheingabe nicht möglich (${e.error}).`);
+  };
+  webRec.onend = () => { micZustand(false); if (endText.trim()) spracheVerarbeiten(endText); else if (!$('toast').hidden && $('toastText').textContent.startsWith('🎤')) $('toast').hidden = true; };
+  micZustand(true);
+  toast('🎤 Ich höre zu … z. B. „Milch, 2 Liter Saft und Brot“', null, 0);
+  try { webRec.start(); } catch { micZustand(false); }
+}
+$('micBtn').onclick = () => sprechen();
 
 // ---------- Version und Update ----------
 const APP_REPO = 'racerman76/einkaufsliste';
