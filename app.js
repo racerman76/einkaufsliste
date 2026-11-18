@@ -403,7 +403,9 @@ $('toastUndo').onclick = () => { rueckgaengig?.(); $('toast').hidden = true; rue
 
 // Gesprochenen Text auf die Liste setzen – mit Kategorie und Schreibweise aus der Auswahl
 function spracheVerarbeiten(text) {
-  const artikel = zerlegen(text);
+  // bekannt: Artikel aus der Auswahl oder schon einmal benutzt – hilft beim Trennen ohne Pausen
+  const bekannt = n => KAT.some(e => normiert(e.name) === normiert(n)) || !!lastCat(n);
+  const artikel = zerlegen(text, bekannt);
   if (!artikel.length) return toast(`Nichts erkannt in „${text}“. Bitte nochmal versuchen.`);
   const vorher = new Map(items().map(i => [i.id, { done: i.done, qty: i.qty, cat: i.cat }]));
   for (const a of artikel) {

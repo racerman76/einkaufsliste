@@ -27,28 +27,60 @@ const einheitVon = w => EINHEITEN.find(([re]) => re.test(w.toLowerCase()))?.[1];
 const zahlText = z => String(z).replace('.', ',');
 const gross = s => s.charAt(0).toUpperCase() + s.slice(1);
 
-export function zerlegen(text) {
-  return String(text || '')
+// Mengenangabe ab Wort i? "2 Liter", "zwei", "2l", "500g", "Liter" (nur am Anfang, dann 1)
+function mengeAb(w, i, amAnfang) {
+  const m = w[i].match(/^(\d+(?:[.,]\d+)?)([a-zäöü.]+)$/i);
+  if (m && einheitVon(m[2])) return { zahl: Number(m[1].replace(',', '.')), einheit: einheitVon(m[2]), len: 1 };
+  const zahl = zahlVon(w[i]);
+  if (zahl !== undefined) {
+    const einheit = i + 1 < w.length ? einheitVon(w[i + 1]) : undefined;
+    return einheit ? { zahl, einheit, len: 2 } : { zahl, len: 1 };
+  }
+  if (amAnfang && i + 1 < w.length && einheitVon(w[i])) return { zahl: 1, einheit: einheitVon(w[i]), len: 1 };
+  return null;
+}
+
+const mengeText = q => !q ? '' : q.einheit ? `${zahlText(q.zahl ?? 1)} ${q.einheit}` : q.zahl !== 1 ? zahlText(q.zahl) : '';
+
+// bekannt(name): optional – erkennt Artikel aus der Auswahl. Damit wird "Milch Butter Brot"
+// (ohne Pausen gesprochen) in drei Artikel geteilt, "Frischkäse Natur" bleibt aber zusammen.
+export function zerlegen(text, bekannt = () => false) {
+  const ergebnis = [];
+  const teile = String(text || '')
     .replace(FUELL, ' ')
-    .split(/\s*(?:(?<!\d),|,(?!\d)|;|\.(?!\d)|\bund\b|\bsowie\b|\bplus\b|\bdazu\b|\bdann\b)\s*/i) // Komma in „1,5“ trennt nicht
-    .map(teil => {
-      let w = teil.trim().split(/\s+/).filter(Boolean);
-      let zahl, einheit;
-      if (w.length && zahlVon(w[0]) !== undefined) zahl = zahlVon(w.shift());
-      if (w.length > 1 && einheitVon(w[0])) einheit = einheitVon(w.shift());
-      // "500g Hack" – Zahl und Einheit zusammengeschrieben
-      if (zahl === undefined && w.length > 1) {
-        const m = w[0].match(/^(\d+(?:[.,]\d+)?)([a-zäöü.]+)$/i);
-        if (m && einheitVon(m[2])) { zahl = Number(m[1].replace(',', '.')); einheit = einheitVon(m[2]); w.shift(); }
-      }
-      const name = w.join(' ').trim();
-      if (!name) return null;
-      let qty = '';
-      if (einheit) qty = `${zahlText(zahl ?? 1)} ${einheit}`;
-      else if (zahl !== undefined && zahl !== 1) qty = zahlText(zahl);
-      return { name: gross(name), qty };
-    })
-    .filter(Boolean);
+    .split(/\s*(?:(?<!\d),|,(?!\d)|;|\.(?!\d)|\bund\b|\bsowie\b|\bplus\b|\bdazu\b|\bdann\b)\s*/i); // Komma in „1,5“ trennt nicht
+  for (const teil of teile) {
+    const w = teil.trim().split(/\s+/).filter(Boolean);
+    // In Namen (N) und Mengen (Q) aufteilen
+    const stuecke = [];
+    for (let i = 0; i < w.length;) {
+      const q = mengeAb(w, i, i === 0);
+      if (q) { stuecke.push({ q }); i += q.len; continue; }
+      const letztes = stuecke.at(-1);
+      if (letztes?.n) letztes.n.push(w[i]); else stuecke.push({ n: [w[i]] });
+      i++;
+    }
+    // Namensblöcke aus lauter bekannten Einzelartikeln trennen
+    const namen = n => {
+      const ganz = n.join(' ');
+      return n.length > 1 && !bekannt(ganz) && n.every(x => bekannt(x)) ? n : [ganz];
+    };
+    // Steht die Menge vorne ("2 Liter Milch"), gilt sie für den folgenden Artikel,
+    // sonst für den davor ("Milch 2 Liter").
+    const vorne = !!stuecke[0]?.q;
+    const artikel = []; let offen = null;
+    for (const st of stuecke) {
+      if (st.n) {
+        for (const name of namen(st.n)) { artikel.push({ name, q: vorne ? offen : null }); offen = null; }
+      } else if (!vorne && artikel.length && !artikel.at(-1).q) artikel.at(-1).q = st.q;
+      else offen = st.q;
+    }
+    if (offen && !artikel.length) { // nur Menge gesagt, z. B. "zwei Liter" – nichts verschlucken
+      const roh = teil.trim().split(/\s+/); if (roh.length > 1) artikel.push({ name: roh.slice(1).join(' '), q: { zahl: offen.zahl } });
+    } else if (offen && !artikel.at(-1).q) artikel.at(-1).q = offen;
+    for (const a of artikel) ergebnis.push({ name: gross(a.name), qty: mengeText(a.q) });
+  }
+  return ergebnis;
 }
 
 // Für den Abgleich mit der Auswahl: "Apfel" ≈ "Äpfel", "Banane" ≈ "Bananen", "Tomate" ≈ "Tomaten"

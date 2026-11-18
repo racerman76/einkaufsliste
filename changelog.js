@@ -3,6 +3,15 @@
 // Aus diesen Texten entstehen die Release-Beschreibungen auf GitHub und das Fenster „Neuigkeiten“ in der App.
 export const AENDERUNGEN = [
   {
+    version: '1.10.1', titel: 'Spracheingabe versteht Mengen hinter dem Artikel',
+    punkte: [
+      'Mengen werden jetzt auch erkannt, wenn sie nach dem Artikel gesagt werden: „Milch 2 Liter“ ergibt Milch mit Menge 2 l – vorher landete alles im Namen.',
+      'Auch ohne Pausen: „Milch 2 Liter Saft 1 Liter Hack 500 Gramm“ wird zu drei Artikeln mit ihren Mengen.',
+      'Bekannte Artikel werden getrennt, auch wenn sie ohne Pause gesagt werden („Milch Butter Brot“). Zusammengehörige Namen wie „Rote Bete“ bleiben zusammen.',
+      '„ein halbes Pfund Butter“ ergibt jetzt Butter mit 0,5 Pfund.',
+    ],
+  },
+  {
     version: '1.10.0', titel: 'Spracheingabe',
     punkte: [
       'Neuer Knopf 🎤 neben 🧺: antippen und mehrere Artikel auf einmal ansagen, z. B. „Milch, zwei Liter Saft, 500 Gramm Hack und Brot“.',
