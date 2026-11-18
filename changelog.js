@@ -3,6 +3,16 @@
 // Aus diesen Texten entstehen die Release-Beschreibungen auf GitHub und das Fenster „Neuigkeiten“ in der App.
 export const AENDERUNGEN = [
   {
+    version: '1.12.0', titel: 'Eigene Kategorien',
+    punkte: [
+      'Unter ☰ → „Nach Kategorie (Ladenweg)“ lassen sich Kategorien jetzt hinzufügen („＋ Kategorie hinzufügen“), umbenennen (✎) und löschen (✕).',
+      'Kategorien gelten für alle Listen und werden auf allen Geräten abgeglichen. Die Reihenfolge stellt weiterhin jede Liste selbst ein; neue Kategorien stehen zunächst am Ende.',
+      'Beim Umbenennen bleiben alle Artikel in ihrer Kategorie. Beim Löschen landen sie unter „Sonstiges“ – mit „Rückgängig“, falls es ein Versehen war.',
+      '„Sonstiges“ ist die Auffang-Kategorie und kann umbenannt, aber nicht gelöscht werden.',
+      'Neue Kategorien stehen überall zur Auswahl: beim Hinzufügen, in „Artikel ändern“ und in der Symbol-Auswahl.',
+    ],
+  },
+  {
     version: '1.11.0', titel: 'Auswahl-Einträge mit einem Tipp entfernen',
     punkte: [
       'Im Bearbeiten-Modus der Symbol-Auswahl (🧺 → ✎) hat jede Kachel oben rechts ein rotes ✕.',

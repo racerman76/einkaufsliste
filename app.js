@@ -1,12 +1,14 @@
 import { merge, sameDoc, emptyDoc } from './merge.js';
 import { SORTS, catOrder, ordnen, verschieben } from './sort.js';
 import { VERSION, neuer } from './version.js';
-import { KAT_LISTE, wirksamerKatalog, sucheKat, symbolFuer, eigeneArtikel, ausgeblendet } from './catalog.js';
+import { KAT_LISTE, wirksamerKatalog, sucheKat, symbolFuer, eigeneArtikel, ausgeblendet,
+  KATG_LISTE, wirksameKategorien, AUFFANG } from './catalog.js';
 import { AENDERUNGEN } from './changelog.js';
 import { zerlegen, normiert } from './sprache.js';
 
-const CATS = ['Obst & Gemüse', 'Brot & Backwaren', 'Kühlregal', 'Fleisch & Fisch', 'Tiefkühl',
-  'Trockenwaren', 'Getränke', 'Drogerie', 'Haushalt', 'Sonstiges'];
+// Kategorien: Schlüssel (CATS) + Anzeigename; eigene, umbenannte und gelöschte kommen aus den Daten (siehe catalog.js)
+let KATS = [], CATS = [];
+const katName = key => KATS.find(k => k.key === key)?.name || key;
 const FILE = 'data.json';
 const $ = id => document.getElementById(id);
 const uid = () => crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2);
@@ -95,15 +97,16 @@ function row(i) {
 let KAT = wirksamerKatalog(doc.items);
 function render() {
   KAT = wirksamerKatalog(doc.items);
+  KATS = wirksameKategorien(doc.items); CATS = KATS.map(k => k.key);
   ensureList();
   $('listSel').replaceChildren(...lists().map(l => el('option', { value: l.id, textContent: l.name, selected: l.id === cur })));
   const all = items();
   const open = all.filter(i => !i.done), done = all.filter(i => i.done);
   $('open').replaceChildren(...ordnen(open, doc.lists[cur], CATS).flatMap(([c, g]) =>
-    [...(c ? [el('h3', { textContent: c })] : []), ...g.map(row)]));
+    [...(c ? [el('h3', { textContent: katName(c) })] : []), ...g.map(row)]));
   // Kategorie-Auswahl beim Hinzufügen in derselben Reihenfolge wie die Liste
-  const sel = $('cat').value || 'Sonstiges';
-  $('cat').replaceChildren(...catOrder(doc.lists[cur], CATS).map(c => el('option', { value: c, textContent: c })));
+  const sel = CATS.includes($('cat').value) ? $('cat').value : AUFFANG;
+  $('cat').replaceChildren(...catOrder(doc.lists[cur], CATS).map(c => el('option', { value: c, textContent: katName(c) })));
   $('cat').value = sel;
   $('empty').hidden = all.length > 0;
   $('doneBox').hidden = done.length === 0;
@@ -123,7 +126,7 @@ function editItem(i) {
   $('edName').value = i.name; $('edQty').value = zahl;
   $('edUnit').replaceChildren(...[...new Set([...EINHEITEN, einheit])].map(u => el('option', { value: u, textContent: u || '–' })));
   $('edUnit').value = einheit;
-  $('edCat').replaceChildren(...catOrder(doc.lists[cur], CATS).map(c => el('option', { value: c, textContent: c })));
+  $('edCat').replaceChildren(...catOrder(doc.lists[cur], CATS).map(c => el('option', { value: c, textContent: katName(c) })));
   $('edCat').value = CATS.includes(i.cat) ? i.cat : 'Sonstiges';
   $('editDlg').returnValue = ''; // sonst gilt bei Esc/Zurück noch der Knopf vom letzten Mal
   $('editDlg').showModal();
@@ -188,7 +191,7 @@ function renderPicker() {
   const gruppen = [['Eigene Artikel', alle.filter(e => e.eigen)],
     ...catOrder(doc.lists[cur], CATS).map(c => [c, alle.filter(e => !e.eigen && (CATS.includes(e.cat) ? e.cat : 'Sonstiges') === c)])];
   const teile = gruppen.filter(([, g]) => g.length)
-    .flatMap(([c, g]) => [el('h3', { textContent: c }), el('div', { className: 'tiles' }, ...g.map(tile))]);
+    .flatMap(([c, g]) => [el('h3', { textContent: katName(c) }), el('div', { className: 'tiles' }, ...g.map(tile))]);
   const knopf = (text, fn, cls = 'secondary wide') => { const k = el('button', { type: 'button', className: cls, textContent: text }); k.onclick = fn; return k; };
   if (pickEdit) {
     teile.unshift(knopf('＋ Neuen Eintrag anlegen', () => katBearbeiten({ name: $('pickSearch').value.trim(), cat: 'Sonstiges', neu: true }), 'primary wide'));
@@ -248,7 +251,7 @@ function katBearbeiten(e) {
   $('katHead').textContent = e.neu ? 'Neuer Eintrag' : 'Auswahl-Eintrag ändern';
   $('katName').value = e.name || ''; $('katIcon').value = e.neu ? '' : (e.icon || symbolFuer(KAT, e.name, e.cat));
   katBild = e.bild || null; katVorschau();
-  $('katCat').replaceChildren(...catOrder(doc.lists[cur], CATS).map(c => el('option', { value: c, textContent: c })));
+  $('katCat').replaceChildren(...catOrder(doc.lists[cur], CATS).map(c => el('option', { value: c, textContent: katName(c) })));
   $('katCat').value = CATS.includes(e.cat) ? e.cat : 'Sonstiges';
   $('katDel').hidden = !!e.neu;
   $('katDlg').returnValue = '';
@@ -338,13 +341,47 @@ function renderSortDlg() {
   $('sortSel').value = l.sort || 'kat';
   $('catBox').hidden = $('sortSel').value !== 'kat';
   const order = catOrder(l, CATS);
-  const btn = (txt, label, dir, c, off) => {
-    const b = el('button', { type: 'button', className: 'icon', textContent: txt, ariaLabel: `${c} ${label}`, disabled: off });
-    b.onclick = () => { touch(l, { cats: verschieben(order, c, dir) }); renderSortDlg(); };
-    return b;
+  const knopf = (txt, label, fn, off = false, cls = 'icon') => {
+    const b = el('button', { type: 'button', className: cls, textContent: txt, title: label, ariaLabel: label, disabled: off });
+    b.onclick = fn; return b;
   };
+  const schiebe = (c, dir) => () => { touch(l, { cats: verschieben(order, c, dir) }); renderSortDlg(); };
   $('catOrder').replaceChildren(...order.map((c, i) => el('div', { className: 'catrow' },
-    el('span', { textContent: `${i + 1}. ${c}` }), btn('↑', 'nach oben', -1, c, i === 0), btn('↓', 'nach unten', 1, c, i === order.length - 1))));
+    el('span', { textContent: `${i + 1}. ${katName(c)}` }),
+    knopf('↑', `${katName(c)} nach oben`, schiebe(c, -1), i === 0),
+    knopf('↓', `${katName(c)} nach unten`, schiebe(c, 1), i === order.length - 1),
+    knopf('✎', `${katName(c)} umbenennen`, () => katgUmbenennen(c)),
+    knopf('✕', `${katName(c)} löschen`, () => katgLoeschen(c), c === AUFFANG, 'icon loeschen'))));
+}
+
+// ---------- Kategorien hinzufügen, umbenennen, löschen (gilt für alle Listen) ----------
+function katgEintrag(key) {
+  const id = 'katg:' + key, alt = doc.items[id];
+  return alt && !alt.deleted ? alt : (doc.items[id] = { id, listId: KATG_LISTE, basis: key, created: Date.now() });
+}
+const katgVergeben = (name, ausser) => KATS.some(k => k.key !== ausser && k.name.toLowerCase() === name.toLowerCase());
+$('newCat').onclick = () => {
+  const name = prompt('Name der neuen Kategorie, z. B. „Tierbedarf“')?.trim();
+  if (!name) return;
+  if (katgVergeben(name)) return alert(`Die Kategorie „${name}“ gibt es schon.`);
+  touch(katgEintrag(name), { name, aus: false, deleted: false });
+  renderSortDlg();
+};
+function katgUmbenennen(key) {
+  const name = prompt('Neuer Name der Kategorie', katName(key))?.trim();
+  if (!name || name === katName(key)) return;
+  if (katgVergeben(name, key)) return alert(`Die Kategorie „${name}“ gibt es schon.`);
+  touch(katgEintrag(key), { name, aus: false });
+  renderSortDlg();
+}
+function katgLoeschen(key) {
+  if (key === AUFFANG) return;
+  const anzahl = Object.values(doc.items).filter(i => !i.deleted && i.cat === key && !String(i.listId).startsWith('_')).length;
+  if (!confirm(`Kategorie „${katName(key)}“ löschen?` + (anzahl ? ` ${anzahl} Artikel darin landen unter „${katName(AUFFANG)}“.` : ''))) return;
+  const name = katName(key), rec = katgEintrag(key);
+  touch(rec, { aus: true });
+  renderSortDlg();
+  toast(`Kategorie „${name}“ gelöscht.`, () => { touch(rec, { aus: false }); renderSortDlg(); });
 }
 $('sortSel').onchange = e => { touch(doc.lists[cur], { sort: e.target.value }); renderSortDlg(); };
 $('resetCats').onclick = () => { touch(doc.lists[cur], { cats: [] }); renderSortDlg(); };

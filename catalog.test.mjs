@@ -40,3 +40,25 @@ assert.equal(symbolFuer(kat, 'Schrauben', 'Haushalt'), '🧽');
 assert.deepEqual(eigeneArtikel(items, kat).map(e => e.name), ['Hundeleine']); // Kiwi ausgeblendet, Vollmilch im Katalog
 assert.deepEqual(ausgeblendet(items).map(o => o.basis), ['kiwi']);
 console.log('catalog (anpassbar): alle Tests ok');
+
+// Eigene Kategorien
+import { KATG_LISTE, wirksameKategorien, STANDARD_KATEGORIEN } from './catalog.js';
+const kg = (basis, x) => ({ id: 'katg:' + basis, listId: KATG_LISTE, basis, updatedAt: 1, ...x });
+const kitems = {
+  a: kg('Tiefkühl', { name: 'Gefriertruhe' }),        // umbenannt
+  b: kg('Drogerie', { aus: true }),                    // gelöscht
+  c: kg('Sonstiges', { aus: true }),                   // Auffang-Kategorie bleibt trotzdem
+  d: kg('Tierbedarf', { name: 'Tierbedarf', created: 2 }),
+  e: kg('Baumarkt', { name: 'Baumarkt', created: 1 }),
+  f: kg('Weg', { name: 'Weg', aus: true, created: 3 }),
+  g: kg('Getränke', { name: 'Durst', deleted: true }), // zurückgesetzt
+};
+const ks = wirksameKategorien(kitems);
+assert.equal(ks.find(k => k.key === 'Tiefkühl').name, 'Gefriertruhe');
+assert.ok(!ks.some(k => k.key === 'Drogerie'));
+assert.ok(ks.some(k => k.key === 'Sonstiges'));
+assert.equal(ks.find(k => k.key === 'Getränke').name, 'Getränke');
+assert.deepEqual(ks.slice(-2).map(k => k.key), ['Baumarkt', 'Tierbedarf']);
+assert.ok(!ks.some(k => k.key === 'Weg'));
+assert.equal(wirksameKategorien({}).length, STANDARD_KATEGORIEN.length);
+console.log('catalog (Kategorien): alle Tests ok');

@@ -71,3 +71,27 @@ export function eigeneArtikel(items, kat, max = 24) {
   }
   return [...seen.values()].slice(0, max);
 }
+
+// ---------- Eigene Kategorien ----------
+// Kategorien gelten für alle Listen. Artikel speichern den Schlüssel der Kategorie (bei den Standard-Kategorien
+// deren ursprünglicher Name), daher bleibt beim Umbenennen alles richtig zugeordnet.
+// Änderungen liegen – wie bei der Auswahl – als besondere Einträge in doc.items (listId KATG_LISTE):
+//   { id: 'katg:<schlüssel>', listId: KATG_LISTE, basis: <schlüssel>, name, aus }
+// „Sonstiges“ ist die Auffang-Kategorie und kann nicht gelöscht werden.
+export const KATG_LISTE = '_kategorien';
+export const STANDARD_KATEGORIEN = Object.keys(CAT_ICON);
+export const AUFFANG = 'Sonstiges';
+
+export function wirksameKategorien(items) {
+  const recs = new Map(Object.values(items || {})
+    .filter(i => i.listId === KATG_LISTE && !i.deleted).map(r => [r.basis, r]));
+  const out = [];
+  for (const key of STANDARD_KATEGORIEN) {
+    const r = recs.get(key); recs.delete(key);
+    if (r?.aus && key !== AUFFANG) continue;
+    out.push({ key, name: r?.name || key });
+  }
+  for (const r of [...recs.values()].sort((a, b) => (a.created || 0) - (b.created || 0)))
+    if (!r.aus && r.name) out.push({ key: r.basis, name: r.name });
+  return out;
+}
