@@ -172,14 +172,18 @@ function renderPicker() {
   $('pickEdit').ariaPressed = String(pickEdit);
   $('pickDlg').classList.toggle('bearbeiten', pickEdit);
   $('pickHint').textContent = pickEdit
-    ? 'Bearbeiten: Eintrag antippen zum Ändern oder Ausblenden · ✎ beendet'
+    ? 'Bearbeiten: Eintrag antippen = ändern · rotes ✕ = aus der Auswahl entfernen · ✎ beendet'
     : 'Antippen = auf die Liste · nochmal antippen = wieder runter · ✎ = Auswahl bearbeiten';
   const tile = e => {
     const on = !pickEdit && offen.get(e.name.toLowerCase());
     const b = el('button', { type: 'button', className: 'tile' + (on ? ' on' : ''), ariaPressed: on ? 'true' : 'false' },
       symbolEl(e.bild, e.icon || symbolFuer(KAT, e.name, e.cat)), el('span', { textContent: e.name }));
     b.onclick = () => pickEdit ? katBearbeiten(e) : on ? touch(on, { deleted: true }) : addItem(e.name, '', e.cat);
-    return b;
+    if (!pickEdit) return b;
+    // Bearbeiten-Modus: ✕ an der Kachel = sofort aus der Auswahl entfernen
+    const x = el('button', { type: 'button', className: 'tilex', textContent: '✕', title: 'Aus der Auswahl entfernen', ariaLabel: e.name + ' aus der Auswahl entfernen' });
+    x.onclick = () => katAusblenden(e);
+    return el('div', { className: 'tilewrap' }, b, x);
   };
   const gruppen = [['Eigene Artikel', alle.filter(e => e.eigen)],
     ...catOrder(doc.lists[cur], CATS).map(c => [c, alle.filter(e => !e.eigen && (CATS.includes(e.cat) ? e.cat : 'Sonstiges') === c)])];
@@ -212,6 +216,18 @@ $('pickDone').onclick = $('pickFertig').onclick = () => $('pickDlg').close();
 
 // Eintrag der Auswahl bearbeiten (Fenster „Auswahl-Eintrag“)
 let katAktuell = null, katBild = null;
+// Anpassungs-Eintrag für einen Auswahl-Artikel holen bzw. anlegen
+function katEintrag(basis) {
+  const id = 'kat:' + basis, alt = doc.items[id];
+  return alt && !alt.deleted ? alt : (doc.items[id] = { id, listId: KAT_LISTE, basis, created: Date.now() });
+}
+function katAusblenden(e) {
+  const vorher = doc.items['kat:' + e.basis];
+  const neu = !vorher || vorher.deleted;
+  const rec = katEintrag(e.basis);
+  touch(rec, { aus: true, deleted: false });
+  toast(`„${e.name}“ aus der Auswahl entfernt.`, () => neu ? touch(rec, { deleted: true }) : touch(rec, { aus: false }));
+}
 const katVorschau = () => {
   $('katVorschau').replaceChildren(symbolEl(katBild, $('katIcon').value.trim() || '🛒'));
   $('katBildWeg').hidden = !katBild;
@@ -245,10 +261,8 @@ $('katDlg').addEventListener('close', () => {
   const name = $('katName').value.trim();
   if (r === 'save' && !name) return;
   const basis = e.neu ? name.toLowerCase() : e.basis;
-  const id = 'kat:' + basis;
-  const alt = doc.items[id];
-  const rec = alt && !alt.deleted ? alt : (doc.items[id] = { id, listId: KAT_LISTE, basis, created: Date.now() });
-  if (r === 'aus') return touch(rec, { aus: true, deleted: false });
+  const rec = katEintrag(basis);
+  if (r === 'aus') return katAusblenden(e);
   touch(rec, { name, icon: $('katIcon').value.trim() || undefined, bild: katBild || undefined, cat: $('katCat').value, aus: false, deleted: false });
 });
 
@@ -394,6 +408,9 @@ let toastTimer = null, rueckgaengig = null;
 function toast(text, undo, dauer = 8000) {
   $('toastText').textContent = text;
   rueckgaengig = undo || null; $('toastUndo').hidden = !undo;
+  // Ist ein Fenster offen, gehört der Hinweis hinein – sonst wäre er dahinter nicht antippbar
+  const fenster = [...document.querySelectorAll('dialog[open]')].at(-1);
+  (fenster || document.body).append($('toast'));
   $('toast').hidden = false;
   clearTimeout(toastTimer);
   if (dauer) toastTimer = setTimeout(() => { $('toast').hidden = true; rueckgaengig = null; }, dauer);

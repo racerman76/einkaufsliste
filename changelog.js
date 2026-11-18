@@ -3,6 +3,14 @@
 // Aus diesen Texten entstehen die Release-Beschreibungen auf GitHub und das Fenster „Neuigkeiten“ in der App.
 export const AENDERUNGEN = [
   {
+    version: '1.11.0', titel: 'Auswahl-Einträge mit einem Tipp entfernen',
+    punkte: [
+      'Im Bearbeiten-Modus der Symbol-Auswahl (🧺 → ✎) hat jede Kachel oben rechts ein rotes ✕.',
+      'Ein Tipp darauf entfernt den Eintrag sofort aus der Auswahl – ohne das Bearbeiten-Fenster zu öffnen.',
+      'Unten erscheint „Rückgängig“, falls es der falsche war. Entfernte Einträge lassen sich außerdem jederzeit über „Ausgeblendete zurückholen“ wiederherstellen.',
+    ],
+  },
+  {
     version: '1.10.3', titel: 'Spracheingabe: „einpacken“ wird erkannt',
     punkte: [
       'Die Spracherkennung schreibt „ein Pack“ auch als „einpacken“. Das wird jetzt ebenfalls als Menge erkannt: „Brötchen einpacken“ ergibt Brötchen mit 1 Pck.',
