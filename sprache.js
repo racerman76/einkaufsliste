@@ -11,7 +11,7 @@ const ZAHLWOERTER = {
 const EINHEITEN = [
   [/^(liter|l)$/, 'l'], [/^(milliliter|ml)$/, 'ml'], [/^(gramm|g|gr)$/, 'g'],
   [/^(kilo|kilogramm|kg)$/, 'kg'], [/^pfund$/, 'Pfund'],
-  [/^(packung|packungen|päckchen|pack|packs|pck\.?|pkg)$/, 'Pck.'], [/^(flasche|flaschen|fl\.?)$/, 'Fl.'],
+  [/^(packung|packungen|päckchen|pack|packs|packen|packerl|pck\.?|pkg)$/, 'Pck.'], [/^(flasche|flaschen|fl\.?)$/, 'Fl.'],
   [/^(dose|dosen)$/, 'Dose'], [/^becher$/, 'Becher'], [/^(bund|bündel)$/, 'Bund'], [/^(glas|gläser)$/, 'Glas'],
   [/^(stück|stk\.?)$/, 'Stück'], [/^(kasten|kästen|kiste|kisten)$/, 'Kasten'], [/^(beutel|tüte|tüten|netz)$/, 'Beutel'],
 ];

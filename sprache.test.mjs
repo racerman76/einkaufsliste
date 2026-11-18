@@ -30,6 +30,9 @@ assert.deepEqual(z('Brötchen zweipack'), ['Brötchen (2 Pck.)']);
 assert.deepEqual(z('einpack Brötchen'), ['Brötchen (1 Pck.)']);
 assert.deepEqual(z('Milch einliter und Wasser zweikästen'), ['Milch (1 l)', 'Wasser (2 Kasten)']);
 assert.deepEqual(z('Brötchen 1pack'), ['Brötchen (1 Pck.)']);
+assert.deepEqual(z('Brötchen einpacken'), ['Brötchen (1 Pck.)']);   // so schreibt es die Erkennung auch
+assert.deepEqual(z('Brötchen zwei Packen'), ['Brötchen (2 Pck.)']);
+assert.deepEqual(z('Koffer packen'), ['Koffer packen']);             // ohne Zahl bleibt es ein Name
 assert.deepEqual(z('Einkaufstasche'), ['Einkaufstasche']); // kein falscher Treffer
 assert.deepEqual(z('Eis'), ['Eis']);
 // Ohne Pausen gesprochen: bekannte Einzelartikel werden getrennt

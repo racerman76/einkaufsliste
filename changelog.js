@@ -3,6 +3,14 @@
 // Aus diesen Texten entstehen die Release-Beschreibungen auf GitHub und das Fenster „Neuigkeiten“ in der App.
 export const AENDERUNGEN = [
   {
+    version: '1.10.3', titel: 'Spracheingabe: „einpacken“ wird erkannt',
+    punkte: [
+      'Die Spracherkennung schreibt „ein Pack“ auch als „einpacken“. Das wird jetzt ebenfalls als Menge erkannt: „Brötchen einpacken“ ergibt Brötchen mit 1 Pck.',
+      'Dadurch landet der Artikel auch wieder in der richtigen Kategorie (Brötchen unter Brot & Backwaren statt Sonstiges).',
+      '„Packen“ zählt jetzt generell als Packung, z. B. „Brötchen zwei Packen“.',
+    ],
+  },
+  {
     version: '1.10.2', titel: 'Spracheingabe: „einpack“ wird erkannt',
     punkte: [
       'Die Spracherkennung schreibt „ein Pack“ manchmal als ein Wort („einpack“). Das wird jetzt als Menge erkannt: „Brötchen einpack“ ergibt Brötchen mit 1 Pck.',
