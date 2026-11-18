@@ -23,6 +23,15 @@ assert.deepEqual(z('Milch 2l'), ['Milch (2 l)']);
 assert.deepEqual(z('Eier 10'), ['Eier (10)']);
 assert.deepEqual(z('Milch 2 Liter Saft 1 Liter Hack 500 Gramm'), ['Milch (2 l)', 'Saft (1 l)', 'Hack (500 g)']);
 assert.deepEqual(z('2 Liter Milch 500 Gramm Hack'), ['Milch (2 l)', 'Hack (500 g)']);
+// Zahlwort und Einheit zusammengeschrieben (so schreibt es die Spracherkennung manchmal)
+assert.deepEqual(z('Brötchen einpack'), ['Brötchen (1 Pck.)']);
+assert.deepEqual(z('Brötchen Einpack'), ['Brötchen (1 Pck.)']);
+assert.deepEqual(z('Brötchen zweipack'), ['Brötchen (2 Pck.)']);
+assert.deepEqual(z('einpack Brötchen'), ['Brötchen (1 Pck.)']);
+assert.deepEqual(z('Milch einliter und Wasser zweikästen'), ['Milch (1 l)', 'Wasser (2 Kasten)']);
+assert.deepEqual(z('Brötchen 1pack'), ['Brötchen (1 Pck.)']);
+assert.deepEqual(z('Einkaufstasche'), ['Einkaufstasche']); // kein falscher Treffer
+assert.deepEqual(z('Eis'), ['Eis']);
 // Ohne Pausen gesprochen: bekannte Einzelartikel werden getrennt
 const bekannt = n => ['milch', 'butter', 'brot', 'frischkäse natur'].includes(n.toLowerCase());
 const zb = t => zerlegen(t, bekannt).map(a => a.qty ? `${a.name} (${a.qty})` : a.name);

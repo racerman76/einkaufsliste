@@ -18,6 +18,7 @@ const EINHEITEN = [
 // Füllwörter, die nicht zum Artikel gehören
 const FUELL = /\b(bitte|noch|auch|ich brauche|wir brauchen|brauchen|brauche|kaufen|besorgen|auf die liste|setze|setz|schreib|schreibe|mal|etwas|etwa)\b/gi;
 
+const ZAHLWORT_LAENGSTE = Object.keys(ZAHLWOERTER).sort((a, b) => b.length - a.length); // "eine" vor "ein" prüfen
 const zahlVon = w => {
   const t = w.toLowerCase();
   if (/^\d+([.,]\d+)?$/.test(t)) return Number(t.replace(',', '.'));
@@ -31,6 +32,12 @@ const gross = s => s.charAt(0).toUpperCase() + s.slice(1);
 function mengeAb(w, i, amAnfang) {
   const m = w[i].match(/^(\d+(?:[.,]\d+)?)([a-zäöü.]+)$/i);
   if (m && einheitVon(m[2])) return { zahl: Number(m[1].replace(',', '.')), einheit: einheitVon(m[2]), len: 1 };
+  // Zahlwort und Einheit zusammengeschrieben: "einpack", "Zweiliter" (so liefert es die Spracherkennung manchmal)
+  const klein = w[i].toLowerCase();
+  for (const wort of ZAHLWORT_LAENGSTE) {
+    if (klein.length > wort.length && klein.startsWith(wort) && einheitVon(klein.slice(wort.length)))
+      return { zahl: ZAHLWOERTER[wort], einheit: einheitVon(klein.slice(wort.length)), len: 1 };
+  }
   const zahl = zahlVon(w[i]);
   if (zahl !== undefined) {
     const einheit = i + 1 < w.length ? einheitVon(w[i + 1]) : undefined;

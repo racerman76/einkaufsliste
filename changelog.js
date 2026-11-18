@@ -3,6 +3,13 @@
 // Aus diesen Texten entstehen die Release-Beschreibungen auf GitHub und das Fenster „Neuigkeiten“ in der App.
 export const AENDERUNGEN = [
   {
+    version: '1.10.2', titel: 'Spracheingabe: „einpack“ wird erkannt',
+    punkte: [
+      'Die Spracherkennung schreibt „ein Pack“ manchmal als ein Wort („einpack“). Das wird jetzt als Menge erkannt: „Brötchen einpack“ ergibt Brötchen mit 1 Pck.',
+      'Gilt für alle Zahlwörter und Einheiten, z. B. „Milch einliter“ oder „Wasser zweikästen“.',
+    ],
+  },
+  {
     version: '1.10.1', titel: 'Spracheingabe versteht Mengen hinter dem Artikel',
     punkte: [
       'Mengen werden jetzt auch erkannt, wenn sie nach dem Artikel gesagt werden: „Milch 2 Liter“ ergibt Milch mit Menge 2 l – vorher landete alles im Namen.',
