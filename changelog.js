@@ -3,6 +3,15 @@
 // Aus diesen Texten entstehen die Release-Beschreibungen auf GitHub und das Fenster „Neuigkeiten“ in der App.
 export const AENDERUNGEN = [
   {
+    version: '1.9.0', titel: 'Eigene Bilder für Artikel',
+    punkte: [
+      'Im Fenster „Auswahl-Eintrag ändern“ (🧺 → ✎ → Eintrag antippen) gibt es „📷 Foto“ für ein Foto mit der Kamera und „🖼 Galerie“ für ein vorhandenes Bild.',
+      'Das Bild ersetzt das Emoji – in der Symbol-Auswahl und in der Einkaufsliste. Eine Vorschau zeigt vor dem Speichern, wie es aussieht.',
+      'Bilder werden automatisch quadratisch zugeschnitten und stark verkleinert (wenige KB), damit der Abgleich schnell bleibt. Sie gelten auf allen Geräten.',
+      'Das ✕ neben dem Bild stellt wieder das Emoji her. Das geht auch bei den Standard-Einträgen, nicht nur bei selbst angelegten.',
+    ],
+  },
+  {
     version: '1.8.3', titel: '„Fertig“ in der Symbol-Auswahl ist zurück',
     punkte: [
       'Die Symbol-Auswahl 🧺 hat wieder den Knopf „Fertig“ – zusätzlich zum ✕ oben rechts. Beide schließen die Auswahl.',

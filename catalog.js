@@ -48,10 +48,10 @@ export function wirksamerKatalog(items) {
   for (const e of CATALOG) {
     const basis = klein(e.name), o = ov.get(basis);
     if (o?.aus) continue;
-    out.push({ name: o?.name || e.name, icon: o?.icon || e.icon, cat: o?.cat || e.cat, basis, standard: true });
+    out.push({ name: o?.name || e.name, icon: o?.icon || e.icon, bild: o?.bild, cat: o?.cat || e.cat, basis, standard: true });
     ov.delete(basis);
   }
-  for (const o of ov.values()) if (!o.aus && o.name) out.push({ name: o.name, icon: o.icon || CAT_ICON[o.cat] || '🛒', cat: o.cat || 'Sonstiges', basis: o.basis });
+  for (const o of ov.values()) if (!o.aus && o.name) out.push({ name: o.name, icon: o.icon || CAT_ICON[o.cat] || '🛒', bild: o.bild, cat: o.cat || 'Sonstiges', basis: o.basis });
   return out;
 }
 

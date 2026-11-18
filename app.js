@@ -87,7 +87,7 @@ function row(i) {
   const name = el('button', { type: 'button', className: 'name', textContent: i.name, title: 'Ändern', ariaLabel: i.name + ' ändern' });
   name.onclick = () => editItem(i);
   if (i.by && i.by !== cfg.user) name.append(el('span', { className: 'by', textContent: i.by }));
-  const ic = el('span', { className: 'ic', textContent: symbolFuer(KAT, i.name, i.cat), ariaHidden: 'true' });
+  const ic = symbolEl(sucheKat(KAT, i.name)?.bild, symbolFuer(KAT, i.name, i.cat));
   return el('div', { className: 'item' }, cb, ic, name, qty, del);
 }
 
@@ -138,6 +138,27 @@ $('editDlg').addEventListener('close', () => {
   touch(i, { name, qty: [$('edQty').value.trim(), $('edUnit').value].filter(Boolean).join(' '), cat: $('edCat').value });
 });
 
+// Symbol eines Artikels: eigenes Bild (falls hinterlegt), sonst Emoji
+function symbolEl(bild, icon) {
+  return el('span', { className: 'ic', ariaHidden: 'true' },
+    bild ? el('img', { src: bild, alt: '', draggable: false }) : icon);
+}
+
+// Foto/Bild auf 96×96 Pixel zuschneiden (Mitte, quadratisch) → JPEG, ca. 4–8 KB.
+// shortcut: Bilder liegen in data.json; die GitHub-Schnittstelle liefert Dateien nur bis 1 MB aus –
+// das reicht für gut 100 Bilder. Bei deutlich mehr: Bilder als eigene Dateien im Daten-Repo ablegen.
+async function bildVerkleinern(datei) {
+  const url = URL.createObjectURL(datei);
+  try {
+    const img = await new Promise((ok, fehler) => { const i = new Image(); i.onload = () => ok(i); i.onerror = fehler; i.src = url; });
+    const n = 96, c = Object.assign(document.createElement('canvas'), { width: n, height: n }), g = c.getContext('2d');
+    g.fillStyle = '#fff'; g.fillRect(0, 0, n, n); // weißer Hintergrund statt Schwarz bei transparenten PNGs
+    const s = Math.min(img.naturalWidth, img.naturalHeight);
+    g.drawImage(img, (img.naturalWidth - s) / 2, (img.naturalHeight - s) / 2, s, s, 0, 0, n, n);
+    return c.toDataURL('image/jpeg', 0.8);
+  } finally { URL.revokeObjectURL(url); }
+}
+
 // ---------- Symbol-Auswahl ----------
 // Normal: Kachel antippen = Artikel auf die Liste (nochmal = wieder runter).
 // Bearbeiten-Modus (✎): Kachel antippen = Eintrag der Auswahl ändern, ausblenden oder neu anlegen.
@@ -155,7 +176,7 @@ function renderPicker() {
   const tile = e => {
     const on = !pickEdit && offen.get(e.name.toLowerCase());
     const b = el('button', { type: 'button', className: 'tile' + (on ? ' on' : ''), ariaPressed: on ? 'true' : 'false' },
-      el('span', { className: 'ic', textContent: e.icon || symbolFuer(KAT, e.name, e.cat) }), el('span', { textContent: e.name }));
+      symbolEl(e.bild, e.icon || symbolFuer(KAT, e.name, e.cat)), el('span', { textContent: e.name }));
     b.onclick = () => pickEdit ? katBearbeiten(e) : on ? touch(on, { deleted: true }) : addItem(e.name, '', e.cat);
     return b;
   };
@@ -189,11 +210,27 @@ $('pickEdit').onclick = () => { pickEdit = !pickEdit; renderPicker(); };
 $('pickDone').onclick = $('pickFertig').onclick = () => $('pickDlg').close();
 
 // Eintrag der Auswahl bearbeiten (Fenster „Auswahl-Eintrag“)
-let katAktuell = null;
+let katAktuell = null, katBild = null;
+const katVorschau = () => {
+  $('katVorschau').replaceChildren(symbolEl(katBild, $('katIcon').value.trim() || '🛒'));
+  $('katBildWeg').hidden = !katBild;
+};
+$('katIcon').addEventListener('input', katVorschau);
+$('katBildWahl').onclick = () => $('katBildDatei').click();
+$('katFoto').onclick = () => $('katFotoDatei').click(); // öffnet direkt die Kamera (am PC: Dateiauswahl)
+$('katBildWeg').onclick = () => { katBild = null; katVorschau(); };
+$('katBildDatei').onchange = $('katFotoDatei').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = '';
+  if (!f) return;
+  if (!f.type.startsWith('image/')) return alert('Bitte ein Bild auswählen.');
+  try { katBild = await bildVerkleinern(f); katVorschau(); }
+  catch { alert('Das Bild konnte nicht gelesen werden. Bitte ein anderes Bild (JPG oder PNG) wählen.'); }
+};
 function katBearbeiten(e) {
   katAktuell = e;
   $('katHead').textContent = e.neu ? 'Neuer Eintrag' : 'Auswahl-Eintrag ändern';
   $('katName').value = e.name || ''; $('katIcon').value = e.neu ? '' : (e.icon || symbolFuer(KAT, e.name, e.cat));
+  katBild = e.bild || null; katVorschau();
   $('katCat').replaceChildren(...catOrder(doc.lists[cur], CATS).map(c => el('option', { value: c, textContent: c })));
   $('katCat').value = CATS.includes(e.cat) ? e.cat : 'Sonstiges';
   $('katDel').hidden = !!e.neu;
@@ -211,7 +248,7 @@ $('katDlg').addEventListener('close', () => {
   const alt = doc.items[id];
   const rec = alt && !alt.deleted ? alt : (doc.items[id] = { id, listId: KAT_LISTE, basis, created: Date.now() });
   if (r === 'aus') return touch(rec, { aus: true, deleted: false });
-  touch(rec, { name, icon: $('katIcon').value.trim() || undefined, cat: $('katCat').value, aus: false, deleted: false });
+  touch(rec, { name, icon: $('katIcon').value.trim() || undefined, bild: katBild || undefined, cat: $('katCat').value, aus: false, deleted: false });
 });
 
 function status(kind, text) { $('syncDot').className = 'dot ' + kind; $('syncText').textContent = text; }

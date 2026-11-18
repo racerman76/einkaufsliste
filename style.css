@@ -100,6 +100,13 @@ dialog h2.griff { padding-right: 40px; }
 .news li { margin-bottom: 4px; }
 .news .aktuell { color: var(--green); font-size: 12px; font-weight: 600; margin-left: 6px; }
 #updNews { padding: 6px 10px; font-size: 14px; }
+/* Eigene Bilder statt Emoji */
+.ic img { width: 1.15em; height: 1.15em; object-fit: cover; border-radius: 22%; vertical-align: middle; display: inline-block; }
+.bildzeile { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; flex-wrap: wrap; }
+.bildzeile .vorschau { font-size: 40px; width: 56px; height: 56px; display: grid; place-items: center;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--bg); flex: none; }
+.bildzeile button { flex: 1; min-width: 0; }
+#katBildWeg { flex: none; min-width: 44px; }
 /* Auswahl bearbeiten */
 #pickEdit.on { background: var(--green); border-color: var(--green); color: #fff; }
 #pickDlg.bearbeiten .tile { border-style: dashed; border-color: var(--green); }

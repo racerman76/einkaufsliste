@@ -85,13 +85,21 @@
       <h2 id="katHead">Auswahl-Eintrag ändern</h2>
       <label>Name <input id="katName" required autocomplete="off" enterkeyhint="done"></label>
       <label>Symbol <input id="katIcon" placeholder="z. B. 🍎 – leer = Symbol der Kategorie" autocomplete="off" maxlength="8"></label>
+      <div class="bildzeile">
+        <div id="katVorschau" class="vorschau" title="Vorschau"></div>
+        <button type="button" id="katFoto" class="secondary">📷 Foto</button>
+        <button type="button" id="katBildWahl" class="secondary">🖼 Galerie</button>
+        <button type="button" id="katBildWeg" class="secondary" title="Bild entfernen" aria-label="Bild entfernen">✕</button>
+        <input id="katBildDatei" type="file" accept="image/*" hidden>
+        <input id="katFotoDatei" type="file" accept="image/*" capture="environment" hidden>
+      </div>
       <label>Kategorie <select id="katCat"></select></label>
       <div class="row">
         <button value="save" class="primary">Speichern</button>
         <button value="cancel" formnovalidate class="secondary">Abbrechen</button>
       </div>
       <button id="katDel" value="aus" formnovalidate class="danger wide">Aus der Auswahl entfernen</button>
-      <p class="muted">Ändert nur die Auswahl 🧺, nicht Artikel, die schon auf einer Liste stehen.</p>
+      <p class="muted">Ein eigenes Bild ersetzt das Symbol – in der Auswahl 🧺 und in der Liste. Foto oder Bild aus der Galerie, es wird automatisch klein zugeschnitten.</p>
     </form>
   </dialog>
 
