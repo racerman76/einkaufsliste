@@ -72,26 +72,46 @@ export function eigeneArtikel(items, kat, max = 24) {
   return [...seen.values()].slice(0, max);
 }
 
-// ---------- Eigene Kategorien ----------
-// Kategorien gelten für alle Listen. Artikel speichern den Schlüssel der Kategorie (bei den Standard-Kategorien
+// ---------- Kategorienlisten und Kategorien ----------
+// Es gibt mehrere Kategorienlisten (z. B. „Standard“ fürs Einkaufen, „Baumarkt“). Jede Einkaufsliste nutzt eine davon
+// (list.katSet, ohne Angabe „standard“). Artikel speichern den Schlüssel ihrer Kategorie (bei den Standard-Kategorien
 // deren ursprünglicher Name), daher bleibt beim Umbenennen alles richtig zugeordnet.
-// Änderungen liegen – wie bei der Auswahl – als besondere Einträge in doc.items (listId KATG_LISTE):
-//   { id: 'katg:<schlüssel>', listId: KATG_LISTE, basis: <schlüssel>, name, aus }
-// „Sonstiges“ ist die Auffang-Kategorie und kann nicht gelöscht werden.
+// Alles liegt – wie bei der Auswahl – als besondere Einträge in doc.items, die ältere App-Versionen unverändert weitergeben:
+//   Kategorienliste: { id: 'kset:<set>', listId: KSET_LISTE, set, name }            (Standard: set 'standard', nur bei Umbenennung)
+//   Kategorie:       { id: 'katg:<schlüssel>' bzw. 'katg:<set>:<schlüssel>', listId: KATG_LISTE, set?, basis: <schlüssel>, name, aus }
+// Die Kategorienliste „Standard“ startet mit den eingebauten Kategorien, jede andere mit ihren eigenen Einträgen.
+// „Sonstiges“ ist in jeder Kategorienliste die Auffang-Kategorie und kann nicht gelöscht werden.
 export const KATG_LISTE = '_kategorien';
+export const KSET_LISTE = '_katsets';
+export const STANDARD_SET = 'standard';
 export const STANDARD_KATEGORIEN = Object.keys(CAT_ICON);
 export const AUFFANG = 'Sonstiges';
 
-export function wirksameKategorien(items) {
-  const recs = new Map(Object.values(items || {})
-    .filter(i => i.listId === KATG_LISTE && !i.deleted).map(r => [r.basis, r]));
+const lebend = (items, listId) => Object.values(items || {}).filter(i => i.listId === listId && !i.deleted);
+
+export function kategorienListen(items) {
+  const recs = lebend(items, KSET_LISTE);
+  const std = recs.find(r => r.set === STANDARD_SET);
+  return [{ id: STANDARD_SET, name: std?.name || 'Standard' },
+    ...recs.filter(r => r.set !== STANDARD_SET && r.name).sort((a, b) => (a.created || 0) - (b.created || 0))
+      .map(r => ({ id: r.set, name: r.name }))];
+}
+
+export const katgId = (set, key) => set === STANDARD_SET ? 'katg:' + key : `katg:${set}:${key}`;
+
+export function wirksameKategorien(items, set = STANDARD_SET) {
+  const recs = new Map(lebend(items, KATG_LISTE)
+    .filter(r => (r.set || STANDARD_SET) === set).map(r => [r.basis, r]));
   const out = [];
-  for (const key of STANDARD_KATEGORIEN) {
+  const grund = set === STANDARD_SET ? STANDARD_KATEGORIEN : [];
+  for (const key of grund) {
     const r = recs.get(key); recs.delete(key);
     if (r?.aus && key !== AUFFANG) continue;
     out.push({ key, name: r?.name || key });
   }
+  const auffang = recs.get(AUFFANG); recs.delete(AUFFANG);
   for (const r of [...recs.values()].sort((a, b) => (a.created || 0) - (b.created || 0)))
     if (!r.aus && r.name) out.push({ key: r.basis, name: r.name });
+  if (set !== STANDARD_SET) out.push({ key: AUFFANG, name: auffang?.name || AUFFANG }); // immer vorhanden, am Ende
   return out;
 }

@@ -3,6 +3,23 @@
 // Aus diesen Texten entstehen die Release-Beschreibungen auf GitHub und das Fenster „Neuigkeiten“ in der App.
 export const AENDERUNGEN = [
   {
+    version: '1.14.0', titel: 'Menge bei der Symbol-Auswahl',
+    punkte: [
+      'Wer in der Symbol-Auswahl 🧺 einen Artikel antippt, bekommt jetzt gleich das Fenster für die Menge – auf dem Handy mit Zahlentastatur. Einheit und Kategorie lassen sich dort mit einstellen.',
+      'Die Menge muss eingetragen werden; erst mit „Speichern“ kommt der Artikel auf die Liste. „Abbrechen“ oder ✕ fügt nichts hinzu.',
+    ],
+  },
+  {
+    version: '1.13.0', titel: 'Eigene Kategorienliste je Liste',
+    punkte: [
+      'Unter ☰ gibt es „Kategorienliste für …“: Jede Einkaufsliste kann ihre eigene Kategorienliste nutzen, z. B. „Supermarkt“ für den Einkauf und „Baumarkt“ für die Baumarkt-Liste.',
+      'Neue Kategorienlisten lassen sich leer („＋ Neue“) oder als Kopie der aktuellen („⧉ Als Kopie“) anlegen, umbenennen (✎) und löschen (✕). Mehrere Listen können dieselbe Kategorienliste nutzen; darunter steht, welche.',
+      'Die bisherigen Kategorien bilden die Kategorienliste „Standard“ – alle bestehenden Listen nutzen sie weiter, es geht nichts verloren. Auch „Standard“ lässt sich umbenennen.',
+      'Hinzufügen, Umbenennen und Löschen von Kategorien wirkt jetzt nur in der gewählten Kategorienliste.',
+      'Die Symbol-Auswahl 🧺 zeigt nur Artikel, die zur Kategorienliste der Liste passen – in einer Baumarkt-Liste also keine Lebensmittel.',
+    ],
+  },
+  {
     version: '1.12.0', titel: 'Eigene Kategorien',
     punkte: [
       'Unter ☰ → „Nach Kategorie (Ladenweg)“ lassen sich Kategorien jetzt hinzufügen („＋ Kategorie hinzufügen“), umbenennen (✎) und löschen (✕).',

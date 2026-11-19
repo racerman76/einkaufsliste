@@ -75,6 +75,10 @@ dialog > button, #listDlg form button, #copyLink { display: block; width: 100%; 
 .catrow button { min-width: 40px; min-height: 36px; padding: 4px; }
 .catrow button:disabled { opacity: .3; }
 #resetCats, #newCat { width: 100%; margin-top: 8px; }
+.ksetzeile { margin-bottom: 6px; }
+.ksetzeile select, .ksetzeile .secondary { flex: 1; min-width: 0; }
+#ksetDel:not(:disabled) { color: var(--red); }
+#ksetInfo { margin: 0 0 6px; }
 .catrow button.loeschen:not(:disabled) { color: var(--red); }
 /* Verschiebbare Fenster: am Titel ziehen */
 .griff { cursor: move; touch-action: none; user-select: none; -webkit-user-select: none; }

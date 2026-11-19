@@ -61,4 +61,22 @@ assert.equal(ks.find(k => k.key === 'Getränke').name, 'Getränke');
 assert.deepEqual(ks.slice(-2).map(k => k.key), ['Baumarkt', 'Tierbedarf']);
 assert.ok(!ks.some(k => k.key === 'Weg'));
 assert.equal(wirksameKategorien({}).length, STANDARD_KATEGORIEN.length);
+
+// Mehrere Kategorienlisten
+import { KSET_LISTE, kategorienListen, katgId } from './catalog.js';
+const ms = {
+  s1: { id: 'kset:bau', listId: KSET_LISTE, set: 'bau', name: 'Baumarkt', created: 1, updatedAt: 1 },
+  s2: { id: 'kset:standard', listId: KSET_LISTE, set: 'standard', name: 'Supermarkt', updatedAt: 1 },
+  s3: { id: 'kset:weg', listId: KSET_LISTE, set: 'weg', name: 'Alt', created: 2, deleted: true, updatedAt: 1 },
+  k1: { id: katgId('bau', 'Holz'), listId: KATG_LISTE, set: 'bau', basis: 'Holz', name: 'Holz', created: 1, updatedAt: 1 },
+  k2: { id: katgId('bau', 'Farbe'), listId: KATG_LISTE, set: 'bau', basis: 'Farbe', name: 'Farben & Lacke', created: 2, updatedAt: 1 },
+  k3: { id: katgId('bau', 'Sonstiges'), listId: KATG_LISTE, set: 'bau', basis: 'Sonstiges', name: 'Kleinkram', updatedAt: 1 },
+  k4: { id: katgId('standard', 'Tiefkühl'), listId: KATG_LISTE, basis: 'Tiefkühl', name: 'Truhe', updatedAt: 1 },
+};
+assert.deepEqual(kategorienListen(ms), [{ id: 'standard', name: 'Supermarkt' }, { id: 'bau', name: 'Baumarkt' }]);
+assert.deepEqual(wirksameKategorien(ms, 'bau'), [{ key: 'Holz', name: 'Holz' }, { key: 'Farbe', name: 'Farben & Lacke' }, { key: 'Sonstiges', name: 'Kleinkram' }]);
+assert.equal(wirksameKategorien(ms).find(k => k.key === 'Tiefkühl').name, 'Truhe');      // Standard unberührt von 'bau'
+assert.ok(!wirksameKategorien(ms).some(k => k.key === 'Holz'));
+assert.deepEqual(wirksameKategorien({}, 'leer'), [{ key: 'Sonstiges', name: 'Sonstiges' }]);
+assert.equal(katgId('standard', 'X'), 'katg:X'); // alte Einträge bleiben gültig
 console.log('catalog (Kategorien): alle Tests ok');

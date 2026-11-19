@@ -2,12 +2,12 @@ import { merge, sameDoc, emptyDoc } from './merge.js';
 import { SORTS, catOrder, ordnen, verschieben } from './sort.js';
 import { VERSION, neuer } from './version.js';
 import { KAT_LISTE, wirksamerKatalog, sucheKat, symbolFuer, eigeneArtikel, ausgeblendet,
-  KATG_LISTE, wirksameKategorien, AUFFANG } from './catalog.js';
+  KATG_LISTE, wirksameKategorien, AUFFANG, KSET_LISTE, STANDARD_SET, kategorienListen, katgId } from './catalog.js';
 import { AENDERUNGEN } from './changelog.js';
 import { zerlegen, normiert } from './sprache.js';
 
 // Kategorien: Schlüssel (CATS) + Anzeigename; eigene, umbenannte und gelöschte kommen aus den Daten (siehe catalog.js)
-let KATS = [], CATS = [];
+let KATS = [], CATS = [], KSETS = [], SET = 'standard';
 const katName = key => KATS.find(k => k.key === key)?.name || key;
 const FILE = 'data.json';
 const $ = id => document.getElementById(id);
@@ -97,8 +97,11 @@ function row(i) {
 let KAT = wirksamerKatalog(doc.items);
 function render() {
   KAT = wirksamerKatalog(doc.items);
-  KATS = wirksameKategorien(doc.items); CATS = KATS.map(k => k.key);
   ensureList();
+  // Kategorienliste der aktuellen Liste (gelöschte oder unbekannte → Standard)
+  KSETS = kategorienListen(doc.items);
+  SET = KSETS.some(k => k.id === doc.lists[cur]?.katSet) ? doc.lists[cur].katSet : STANDARD_SET;
+  KATS = wirksameKategorien(doc.items, SET); CATS = KATS.map(k => k.key);
   $('listSel').replaceChildren(...lists().map(l => el('option', { value: l.id, textContent: l.name, selected: l.id === cur })));
   const all = items();
   const open = all.filter(i => !i.done), done = all.filter(i => i.done);
@@ -116,12 +119,15 @@ function render() {
 }
 
 // ---------- Artikel bearbeiten ----------
-let editing = null;
+let editing = null, editNeu = false;
 const EINHEITEN = ['', 'Stück', 'g', 'kg', 'ml', 'l', 'Pck.', 'Fl.', 'Dose', 'Becher', 'Bund', 'Glas'];
 // "2,5 kg" → ["2,5", "kg"]; Mengen ohne Zahl (z. B. "eine Handvoll") landen komplett in der Einheit
 const teileMenge = q => { const m = String(q || '').trim().match(/^([\d.,\/½¼¾]*)\s*(.*)$/); return [m[1], m[2]]; };
-function editItem(i) {
-  editing = i;
+// neu = true: Artikel aus der Symbol-Auswahl, kommt erst mit „Speichern“ auf die Liste (Menge Pflicht)
+function editItem(i, neu = false) {
+  editing = i; editNeu = neu;
+  $('edTitel').textContent = neu ? i.name + ' hinzufügen' : 'Artikel ändern';
+  $('edDel').hidden = neu; $('edQty').required = neu;
   const [zahl, einheit] = teileMenge(i.qty);
   $('edName').value = i.name; $('edQty').value = zahl;
   $('edUnit').replaceChildren(...[...new Set([...EINHEITEN, einheit])].map(u => el('option', { value: u, textContent: u || '–' })));
@@ -130,6 +136,7 @@ function editItem(i) {
   $('edCat').value = CATS.includes(i.cat) ? i.cat : 'Sonstiges';
   $('editDlg').returnValue = ''; // sonst gilt bei Esc/Zurück noch der Knopf vom letzten Mal
   $('editDlg').showModal();
+  if (neu) $('edQty').focus(); // Handy: Zahlentastatur geht gleich auf
 }
 $('edName').addEventListener('input', e => { const c = sucheKat(KAT, e.target.value)?.cat; if (c) $('edCat').value = c; });
 $('editDlg').addEventListener('close', () => {
@@ -139,6 +146,8 @@ $('editDlg').addEventListener('close', () => {
   if (r === 'del') return touch(i, { deleted: true });
   const name = $('edName').value.trim();
   if (r !== 'save' || !name) return;
+  const qty = [$('edQty').value.trim(), $('edUnit').value].filter(Boolean).join(' ');
+  if (editNeu) return addItem(name, qty, $('edCat').value);
   touch(i, { name, qty: [$('edQty').value.trim(), $('edUnit').value].filter(Boolean).join(' '), cat: $('edCat').value });
 });
 
@@ -170,18 +179,20 @@ let pickEdit = false;
 function renderPicker() {
   const q = $('pickSearch').value.trim().toLowerCase();
   const offen = new Map(items().filter(i => !i.done).map(i => [i.name.toLowerCase(), i]));
-  const alle = [...eigeneArtikel(doc.items, KAT), ...KAT].filter(e => !q || e.name.toLowerCase().includes(q));
+  // Nur Artikel, die zur Kategorienliste dieser Liste passen (Baumarkt-Liste zeigt keine Milch)
+  const alle = [...eigeneArtikel(doc.items, KAT), ...KAT.filter(e => CATS.includes(e.cat) || e.cat === AUFFANG)]
+    .filter(e => !q || e.name.toLowerCase().includes(q));
   $('pickEdit').classList.toggle('on', pickEdit);
   $('pickEdit').ariaPressed = String(pickEdit);
   $('pickDlg').classList.toggle('bearbeiten', pickEdit);
   $('pickHint').textContent = pickEdit
     ? 'Bearbeiten: Eintrag antippen = ändern · rotes ✕ = aus der Auswahl entfernen · ✎ beendet'
-    : 'Antippen = auf die Liste · nochmal antippen = wieder runter · ✎ = Auswahl bearbeiten';
+    : 'Antippen = Menge eingeben & speichern · nochmal antippen = wieder runter · ✎ = Auswahl bearbeiten';
   const tile = e => {
     const on = !pickEdit && offen.get(e.name.toLowerCase());
     const b = el('button', { type: 'button', className: 'tile' + (on ? ' on' : ''), ariaPressed: on ? 'true' : 'false' },
       symbolEl(e.bild, e.icon || symbolFuer(KAT, e.name, e.cat)), el('span', { textContent: e.name }));
-    b.onclick = () => pickEdit ? katBearbeiten(e) : on ? touch(on, { deleted: true }) : addItem(e.name, '', e.cat);
+    b.onclick = () => pickEdit ? katBearbeiten(e) : on ? touch(on, { deleted: true }) : editItem({ name: e.name, qty: '', cat: e.cat }, true);
     if (!pickEdit) return b;
     // Bearbeiten-Modus: ✕ an der Kachel = sofort aus der Auswahl entfernen
     const x = el('button', { type: 'button', className: 'tilex', textContent: '✕', title: 'Aus der Auswahl entfernen', ariaLabel: e.name + ' aus der Auswahl entfernen' });
@@ -339,7 +350,15 @@ function renderSortDlg() {
   const l = doc.lists[cur];
   $('sortList').textContent = l.name;
   $('sortSel').value = l.sort || 'kat';
-  $('catBox').hidden = $('sortSel').value !== 'kat';
+  // Kategorienliste dieser Liste
+  const setName = KSETS.find(k => k.id === SET)?.name;
+  $('ksetList').textContent = l.name;
+  $('ksetSel').replaceChildren(...KSETS.map(k => el('option', { value: k.id, textContent: k.name })));
+  $('ksetSel').value = SET;
+  $('ksetDel').disabled = SET === STANDARD_SET;
+  const nutzer = lists().filter(x => (KSETS.some(k => k.id === x.katSet) ? x.katSet : STANDARD_SET) === SET).map(x => x.name);
+  $('ksetInfo').textContent = `Genutzt von: ${nutzer.join(', ')}`;
+  $('catHead').textContent = `Kategorien in „${setName}“ – so ordnen, wie du durch den Laden gehst:`;
   const order = catOrder(l, CATS);
   const knopf = (txt, label, fn, off = false, cls = 'icon') => {
     const b = el('button', { type: 'button', className: cls, textContent: txt, title: label, ariaLabel: label, disabled: off });
@@ -354,11 +373,52 @@ function renderSortDlg() {
     knopf('✕', `${katName(c)} löschen`, () => katgLoeschen(c), c === AUFFANG, 'icon loeschen'))));
 }
 
-// ---------- Kategorien hinzufügen, umbenennen, löschen (gilt für alle Listen) ----------
-function katgEintrag(key) {
-  const id = 'katg:' + key, alt = doc.items[id];
-  return alt && !alt.deleted ? alt : (doc.items[id] = { id, listId: KATG_LISTE, basis: key, created: Date.now() });
+// ---------- Kategorien hinzufügen, umbenennen, löschen (gilt für alle Listen mit dieser Kategorienliste) ----------
+function katgEintrag(key, set = SET) {
+  const id = katgId(set, key), alt = doc.items[id];
+  return alt && !alt.deleted ? alt : (doc.items[id] = { id, listId: KATG_LISTE, basis: key, created: Date.now(),
+    ...(set === STANDARD_SET ? {} : { set }) });
 }
+
+// ---------- Kategorienlisten: auswählen, neu, Kopie, umbenennen, löschen ----------
+const ksetEintrag = set => {
+  const id = 'kset:' + set, alt = doc.items[id];
+  return alt && !alt.deleted ? alt : (doc.items[id] = { id, listId: KSET_LISTE, set, created: Date.now() });
+};
+const ksetVergeben = (name, ausser) => KSETS.some(k => k.id !== ausser && k.name.toLowerCase() === name.toLowerCase());
+$('ksetSel').onchange = e => { touch(doc.lists[cur], { katSet: e.target.value }); renderSortDlg(); };
+function ksetNeu(kopie) {
+  const vorschlag = kopie ? `${KSETS.find(k => k.id === SET).name} (Kopie)` : 'Baumarkt';
+  const name = prompt(kopie ? 'Name der kopierten Kategorienliste' : 'Name der neuen Kategorienliste', vorschlag)?.trim();
+  if (!name) return;
+  if (ksetVergeben(name)) return alert(`Die Kategorienliste „${name}“ gibt es schon.`);
+  const set = uid();
+  touch(ksetEintrag(set), { name });
+  if (kopie) KATS.forEach((k, i) => touch(katgEintrag(k.key, set), { name: k.name, created: Date.now() + i }));
+  touch(doc.lists[cur], { katSet: set }); // gleich dieser Liste zuweisen
+  renderSortDlg();
+  toast(kopie ? `„${name}“ angelegt – mit allen Kategorien von vorher.` : `„${name}“ angelegt. Jetzt mit „＋ Kategorie hinzufügen“ füllen.`);
+}
+$('ksetNeu').onclick = () => ksetNeu(false);
+$('ksetKopie').onclick = () => ksetNeu(true);
+$('ksetRename').onclick = () => {
+  const alt = KSETS.find(k => k.id === SET).name;
+  const name = prompt('Neuer Name der Kategorienliste', alt)?.trim();
+  if (!name || name === alt) return;
+  if (ksetVergeben(name, SET)) return alert(`Die Kategorienliste „${name}“ gibt es schon.`);
+  touch(ksetEintrag(SET), { name });
+  renderSortDlg();
+};
+$('ksetDel').onclick = () => {
+  if (SET === STANDARD_SET) return;
+  const name = KSETS.find(k => k.id === SET).name, set = SET;
+  const nutzer = lists().filter(x => x.katSet === set);
+  if (!confirm(`Kategorienliste „${name}“ löschen? ${nutzer.length > 1 ? nutzer.length + ' Listen nutzen' : 'Diese Liste nutzt'} dann wieder „${KSETS[0].name}“.`)) return;
+  const rec = ksetEintrag(set);
+  touch(rec, { deleted: true });
+  renderSortDlg();
+  toast(`Kategorienliste „${name}“ gelöscht.`, () => { touch(rec, { deleted: false }); renderSortDlg(); });
+};
 const katgVergeben = (name, ausser) => KATS.some(k => k.key !== ausser && k.name.toLowerCase() === name.toLowerCase());
 $('newCat').onclick = () => {
   const name = prompt('Name der neuen Kategorie, z. B. „Tierbedarf“')?.trim();

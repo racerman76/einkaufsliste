@@ -55,7 +55,7 @@
 
   <dialog id="editDlg">
     <form method="dialog">
-      <h2>Artikel ändern</h2>
+      <h2 id="edTitel">Artikel ändern</h2>
       <label>Artikel <input id="edName" required autocomplete="off" enterkeyhint="done"></label>
       <div class="row mengezeile">
         <label>Menge <input id="edQty" placeholder="z. B. 2" autocomplete="off" enterkeyhint="done" inputmode="decimal"></label>
@@ -66,7 +66,7 @@
         <button value="save" class="primary">Speichern</button>
         <button value="cancel" formnovalidate class="secondary">Abbrechen</button>
       </div>
-      <button value="del" formnovalidate class="danger wide">Von der Liste löschen</button>
+      <button id="edDel" value="del" formnovalidate class="danger wide">Von der Liste löschen</button>
     </form>
   </dialog>
 
@@ -108,12 +108,23 @@
     <h2>Listen</h2>
     <h3>Reihenfolge in „<span id="sortList"></span>“</h3>
     <select id="sortSel" aria-label="Sortierung"></select>
+    <h3>Kategorienliste für „<span id="ksetList"></span>“</h3>
+    <div class="row ksetzeile">
+      <select id="ksetSel" aria-label="Kategorienliste"></select>
+      <button id="ksetRename" type="button" class="icon" title="Kategorienliste umbenennen" aria-label="Kategorienliste umbenennen">✎</button>
+      <button id="ksetDel" type="button" class="icon loeschen" title="Kategorienliste löschen" aria-label="Kategorienliste löschen">✕</button>
+    </div>
+    <div class="row ksetzeile">
+      <button id="ksetNeu" type="button" class="secondary">＋ Neue (leer)</button>
+      <button id="ksetKopie" type="button" class="secondary">⧉ Als Kopie</button>
+    </div>
+    <p id="ksetInfo" class="muted"></p>
     <div id="catBox">
-      <p class="muted">Kategorien so ordnen, wie du durch den Laden gehst:</p>
+      <p id="catHead" class="muted">Kategorien so ordnen, wie du durch den Laden gehst:</p>
       <div id="catOrder"></div>
       <button id="newCat" type="button" class="primary">＋ Kategorie hinzufügen</button>
       <button id="resetCats" type="button" class="secondary">Standard-Reihenfolge</button>
-      <p class="muted">Kategorien gelten für alle Listen, die Reihenfolge stellt jede Liste selbst ein. ✎ = umbenennen, ✕ = löschen (Artikel darin landen unter „Sonstiges“).</p>
+      <p class="muted">Die Kategorien gehören zur Kategorienliste – mehrere Listen können dieselbe nutzen. Die Reihenfolge stellt jede Liste selbst ein. ✎ = umbenennen, ✕ = löschen (Artikel darin landen unter „Sonstiges“).</p>
     </div>
     <hr>
     <button id="newList" class="primary">Neue Liste</button>
