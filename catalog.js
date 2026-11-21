@@ -30,7 +30,15 @@ export const findCatalog = name => byName.get(String(name).trim().toLowerCase())
 
 // Symbol für einen Artikel: aus dem Katalog, sonst das Symbol seiner Kategorie
 // Alle vorhandenen Symbole (Artikel + Kategorien) – zur Auswahl für eigene Artikel
-export const ALLE_SYMBOLE = [...new Set([...CATALOG.map(e => e.icon), ...Object.values(CAT_ICON)])];
+// Alle Lebensmittel-Emojis (Unicode-Gruppe „Essen & Trinken“ bis Emoji 15.0 – läuft auf aktuellen Samsung-, Apple- und Windows-Geräten)
+const LEBENSMITTEL = `🍇 🍈 🍉 🍊 🍋 🍌 🍍 🥭 🍎 🍏 🍐 🍑 🍒 🍓 🫐 🥝 🍅 🫒 🥥
+  🥑 🍆 🥔 🥕 🌽 🌶️ 🫑 🥒 🥬 🥦 🧄 🧅 🍄 🥜 🫘 🌰 🫚 🫛 🌿
+  🍞 🥐 🥖 🫓 🥨 🥯 🥞 🧇 🧀 🍖 🍗 🥩 🥓 🍔 🍟 🍕 🌭 🥪 🌮 🌯 🫔 🥙 🧆 🥚 🍳 🥘 🍲 🫕 🥣 🥗 🍿 🧈 🧂 🥫
+  🍱 🍘 🍙 🍚 🍛 🍜 🍝 🍠 🍢 🍣 🍤 🍥 🥮 🍡 🥟 🥠 🥡
+  🐟 🦀 🦞 🦐 🦑 🦪
+  🍦 🍧 🍨 🍩 🍪 🎂 🍰 🧁 🥧 🍫 🍬 🍭 🍮 🍯
+  🍼 🥛 ☕ 🫖 🍵 🍶 🍾 🍷 🍸 🍹 🍺 🍻 🥂 🥃 🫗 🥤 🧋 🧃 🧉 🧊`.split(/\s+/).filter(Boolean);
+export const ALLE_SYMBOLE = [...new Set([...CATALOG.map(e => e.icon), ...LEBENSMITTEL, ...Object.values(CAT_ICON)])];
 export const iconFor = (name, cat) => findCatalog(name)?.icon || CAT_ICON[cat] || '🛒';
 
 // ---------- Anpassbare Auswahl ----------

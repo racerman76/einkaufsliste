@@ -1,5 +1,5 @@
 // App-Dateien offline vorhalten. GitHub-API-Aufrufe (andere Domain) laufen nie über den Cache.
-const CACHE = 'einkauf-v30'; // bei jeder Code-Änderung hochzählen (wie VERSION in version.js), damit Handys die neue Version laden
+const CACHE = 'einkauf-v31'; // bei jeder Code-Änderung hochzählen (wie VERSION in version.js), damit Handys die neue Version laden
 const FILES = ['./', 'index.html', 'app.js', 'merge.js', 'sort.js', 'version.js', 'catalog.js', 'changelog.js', 'sprache.js', 'style.css', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 

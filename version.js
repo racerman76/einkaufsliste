@@ -1,6 +1,6 @@
 // Versionsnummer der App. Bei jeder Änderung an der App hochzählen –
 // der Android-Build erstellt nur dann ein neues Release (Tag v<VERSION>).
-export const VERSION = '1.15.0';
+export const VERSION = '1.16.0';
 
 // Ist Version a neuer als b? ("1.10.0" > "1.9.2"); Unlesbares (z. B. alte Tags) gilt nie als neuer
 export function neuer(a, b) {

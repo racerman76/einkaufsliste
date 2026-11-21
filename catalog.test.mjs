@@ -80,3 +80,11 @@ assert.ok(!wirksameKategorien(ms).some(k => k.key === 'Holz'));
 assert.deepEqual(wirksameKategorien({}, 'leer'), [{ key: 'Sonstiges', name: 'Sonstiges' }]);
 assert.equal(katgId('standard', 'X'), 'katg:X'); // alte Einträge bleiben gültig
 console.log('catalog (Kategorien): alle Tests ok');
+
+// Symbolauswahl: alle Lebensmittel-Emojis, keine doppelten
+{
+  const { ALLE_SYMBOLE } = await import('./catalog.js');
+  assert.ok(ALLE_SYMBOLE.length > 140, 'zu wenige Symbole: ' + ALLE_SYMBOLE.length);
+  assert.equal(new Set(ALLE_SYMBOLE).size, ALLE_SYMBOLE.length);
+  for (const s of ['🥭', '🫐', '🥟', '🧋', '🫚', '🦐', '🧇']) assert.ok(ALLE_SYMBOLE.includes(s), s);
+}

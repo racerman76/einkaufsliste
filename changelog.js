@@ -3,6 +3,13 @@
 // Aus diesen Texten entstehen die Release-Beschreibungen auf GitHub und das Fenster „Neuigkeiten“ in der App.
 export const AENDERUNGEN = [
   {
+    version: '1.16.0', titel: 'Alle Lebensmittel-Symbole',
+    punkte: [
+      'Unter „🍎 Symbole“ stehen jetzt alle Lebensmittel-Symbole zur Wahl – zusammen fast 150 Symbole: Obst, Gemüse, Kräuter, Nüsse, Backwaren, Fleisch, Fisch und Meeresfrüchte, Gerichte, Asiatisches, Süßes und Getränke.',
+      'Zuerst kommen weiterhin die Symbole aus der Auswahl, danach die übrigen Lebensmittel, am Ende die Kategorie-Symbole.',
+    ],
+  },
+  {
     version: '1.15.0', titel: 'Symbole für eigene Artikel',
     punkte: [
       'Beim Anlegen oder Ändern eines Eintrags in der Symbol-Auswahl (🧺 → ✎) gibt es den Knopf „🍎 Symbole“. Er zeigt alle vorhandenen Symbole der App zum Antippen – so bekommen auch selbst erstellte Artikel ein passendes Bild, ohne Foto.',
