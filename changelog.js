@@ -3,6 +3,12 @@
 // Aus diesen Texten entstehen die Release-Beschreibungen auf GitHub und das Fenster „Neuigkeiten“ in der App.
 export const AENDERUNGEN = [
   {
+    version: '1.17.0', titel: 'Kürbis',
+    punkte: [
+      'Neu in der Symbol-Auswahl unter „Obst & Gemüse“: Kürbis 🎃. Das Symbol steht auch unter „🍎 Symbole“ für eigene Artikel zur Wahl.',
+    ],
+  },
+  {
     version: '1.16.0', titel: 'Alle Lebensmittel-Symbole',
     punkte: [
       'Unter „🍎 Symbole“ stehen jetzt alle Lebensmittel-Symbole zur Wahl – zusammen fast 150 Symbole: Obst, Gemüse, Kräuter, Nüsse, Backwaren, Fleisch, Fisch und Meeresfrüchte, Gerichte, Asiatisches, Süßes und Getränke.',

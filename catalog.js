@@ -12,7 +12,7 @@ const k = (cat, liste) => liste.trim().split(/\s*,\s*/).map(e => {
 export const CATALOG = [
   ...k('Obst & Gemüse', `🍎 Äpfel, 🍌 Bananen, 🍐 Birnen, 🍊 Orangen, 🍋 Zitronen, 🍇 Trauben, 🍓 Erdbeeren, 🥝 Kiwi,
     🍅 Tomaten, 🥒 Gurke, 🫑 Paprika, 🥕 Karotten, 🥔 Kartoffeln, 🧅 Zwiebeln, 🧄 Knoblauch, 🥬 Salat, 🥦 Brokkoli,
-    🍄 Pilze, 🌽 Mais, 🥑 Avocado`),
+    🍄 Pilze, 🌽 Mais, 🥑 Avocado, 🎃 Kürbis`),
   ...k('Brot & Backwaren', `🍞 Brot, 🥖 Brötchen, 🍞 Toast, 🥐 Croissants, 🥨 Brezeln, 🍰 Kuchen`),
   ...k('Kühlregal', `🥛 Milch, 🧈 Butter, 🧀 Käse, 🥣 Joghurt, 🥣 Quark, 🥛 Sahne, 🥚 Eier, 🧈 Margarine, 🧀 Frischkäse`),
   ...k('Fleisch & Fisch', `🍗 Hähnchen, 🥩 Hackfleisch, 🥩 Steak, 🌭 Wurst, 🥪 Aufschnitt, 🍖 Salami, 🌭 Bratwurst, 🌭 Wiener, 🍖 Leberwurst, 🥓 Schinken, 🥓 Speck, 🐟 Fisch, 🐟 Lachs, 🦐 Garnelen`),
@@ -32,7 +32,7 @@ export const findCatalog = name => byName.get(String(name).trim().toLowerCase())
 // Alle vorhandenen Symbole (Artikel + Kategorien) – zur Auswahl für eigene Artikel
 // Alle Lebensmittel-Emojis (Unicode-Gruppe „Essen & Trinken“ bis Emoji 15.0 – läuft auf aktuellen Samsung-, Apple- und Windows-Geräten)
 const LEBENSMITTEL = `🍇 🍈 🍉 🍊 🍋 🍌 🍍 🥭 🍎 🍏 🍐 🍑 🍒 🍓 🫐 🥝 🍅 🫒 🥥
-  🥑 🍆 🥔 🥕 🌽 🌶️ 🫑 🥒 🥬 🥦 🧄 🧅 🍄 🥜 🫘 🌰 🫚 🫛 🌿
+  🥑 🍆 🥔 🥕 🌽 🌶️ 🫑 🥒 🥬 🥦 🧄 🧅 🍄 🥜 🫘 🌰 🫚 🫛 🎃 🌿
   🍞 🥐 🥖 🫓 🥨 🥯 🥞 🧇 🧀 🍖 🍗 🥩 🥓 🍔 🍟 🍕 🌭 🥪 🌮 🌯 🫔 🥙 🧆 🥚 🍳 🥘 🍲 🫕 🥣 🥗 🍿 🧈 🧂 🥫
   🍱 🍘 🍙 🍚 🍛 🍜 🍝 🍠 🍢 🍣 🍤 🍥 🥮 🍡 🥟 🥠 🥡
   🐟 🦀 🦞 🦐 🦑 🦪
