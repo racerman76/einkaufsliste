@@ -36,7 +36,7 @@ assert.equal(sucheKat(kat, 'Grillkohle').cat, 'Haushalt');
 assert.ok(sucheKat(kat, 'Salz'));
 assert.equal(kat.length, CATALOG.length);                 // -Kiwi +Grillkohle
 assert.equal(symbolFuer(kat, 'grillkohle'), '🔥');
-assert.equal(symbolFuer(kat, 'Schrauben', 'Haushalt'), '🧽');
+assert.equal(symbolFuer(kat, 'Schrauben', 'Haushalt'), '🛒');
 assert.deepEqual(eigeneArtikel(items, kat).map(e => e.name), ['Hundeleine']); // Kiwi ausgeblendet, Vollmilch im Katalog
 assert.deepEqual(ausgeblendet(items).map(o => o.basis), ['kiwi']);
 console.log('catalog (anpassbar): alle Tests ok');

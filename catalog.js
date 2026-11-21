@@ -61,12 +61,13 @@ export function wirksamerKatalog(items) {
     out.push({ name: o?.name || e.name, icon: o?.icon || e.icon, bild: o?.bild, cat: o?.cat || e.cat, basis, standard: true });
     ov.delete(basis);
   }
-  for (const o of ov.values()) if (!o.aus && o.name) out.push({ name: o.name, icon: o.icon || CAT_ICON[o.cat] || '🛒', bild: o.bild, cat: o.cat || 'Sonstiges', basis: o.basis });
+  for (const o of ov.values()) if (!o.aus && o.name) out.push({ name: o.name, icon: o.icon || '🛒', bild: o.bild, cat: o.cat || 'Sonstiges', basis: o.basis });
   return out;
 }
 
 export const sucheKat = (kat, name) => kat.find(e => klein(e.name) === klein(name));
-export const symbolFuer = (kat, name, cat) => sucheKat(kat, name)?.icon || CAT_ICON[cat] || '🛒';
+// Selbst angelegte Artikel ohne eigenes Symbol bekommen den Einkaufswagen
+export const symbolFuer = (kat, name) => sucheKat(kat, name)?.icon || '🛒';
 
 // Ausgeblendete Einträge (zum Zurückholen)
 export const ausgeblendet = items => katEintraege(items).filter(o => o.aus);

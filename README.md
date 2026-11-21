@@ -67,7 +67,7 @@ Download: https://github.com/racerman76/einkaufsliste/releases/latest/download/E
 
 ## Versionen und Updates
 - Jede Version wird in `changelog.js` beschrieben (Titel + Stichpunkte, neueste oben). Daraus entstehen die Release-Texte auf GitHub und das Fenster „Neuigkeiten“ unter ⚙. Der Selbsttest prüft, dass der neueste Eintrag zur Nummer in `version.js` passt.
-- Die Versionsnummer steht in `version.js` (`VERSION = '1.17.0'`). **Bei jeder Änderung an der App hochzählen** – nur dann baut GitHub ein neues Release `v<Version>`. Änderungen ohne neue Nummer (z. B. nur README) erzeugen kein Release.
+- Die Versionsnummer steht in `version.js` (`VERSION = '1.18.0'`). **Bei jeder Änderung an der App hochzählen** – nur dann baut GitHub ein neues Release `v<Version>`. Änderungen ohne neue Nummer (z. B. nur README) erzeugen kein Release.
 - In der App unter ⚙ steht die aktuelle Version, dazu „Nach Updates suchen“. Beim Start prüft die App selbst und zeigt oben eine Leiste, wenn es eine neuere Version gibt:
   - **Android:** „Herunterladen“ lädt die neue APK im Browser – Datei antippen und über die alte installieren.
   - **iPhone/PC:** „Neu laden“ holt die neue Version.

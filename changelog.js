@@ -3,6 +3,13 @@
 // Aus diesen Texten entstehen die Release-Beschreibungen auf GitHub und das Fenster „Neuigkeiten“ in der App.
 export const AENDERUNGEN = [
   {
+    version: '1.18.0', titel: 'Einkaufswagen als Standardsymbol',
+    punkte: [
+      'Selbst angelegte Artikel ohne eigenes Symbol zeigen jetzt immer den Einkaufswagen 🛒 – in der Liste und in der Symbol-Auswahl. Bisher bekamen sie das Symbol ihrer Kategorie (z. B. 🧽 für Haushalt), was leicht mit anderen Artikeln zu verwechseln war.',
+      'Wer ein anderes Symbol möchte, wählt es wie gewohnt unter 🧺 → ✎ → „🍎 Symbole“ oder hinterlegt ein Foto.',
+    ],
+  },
+  {
     version: '1.17.0', titel: 'Kürbis',
     punkte: [
       'Neu in der Symbol-Auswahl unter „Obst & Gemüse“: Kürbis 🎃. Das Symbol steht auch unter „🍎 Symbole“ für eigene Artikel zur Wahl.',
