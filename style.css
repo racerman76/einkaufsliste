@@ -112,6 +112,10 @@ dialog h2.griff { padding-right: 40px; }
   border: 1px solid var(--line); border-radius: 12px; background: var(--bg); flex: none; }
 .bildzeile button { flex: 1; min-width: 0; }
 #katBildWeg { flex: none; min-width: 44px; }
+.symbolwahl { display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: 4px; max-height: 32vh; overflow-y: auto;
+  margin: 0 0 10px; padding: 6px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
+.symbolwahl button { font-size: 26px; padding: 4px 0; min-height: 44px; border: 2px solid transparent; border-radius: 10px; background: none; }
+.symbolwahl button.on { border-color: var(--green, #2e7d4f); background: var(--card, #fff); }
 /* Spracheingabe */
 #micBtn.hoert { background: var(--red); border-color: var(--red); color: #fff; animation: puls 1.2s ease-in-out infinite; }
 @keyframes puls { 50% { opacity: .55; } }

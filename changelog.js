@@ -3,6 +3,13 @@
 // Aus diesen Texten entstehen die Release-Beschreibungen auf GitHub und das Fenster „Neuigkeiten“ in der App.
 export const AENDERUNGEN = [
   {
+    version: '1.15.0', titel: 'Symbole für eigene Artikel',
+    punkte: [
+      'Beim Anlegen oder Ändern eines Eintrags in der Symbol-Auswahl (🧺 → ✎) gibt es den Knopf „🍎 Symbole“. Er zeigt alle vorhandenen Symbole der App zum Antippen – so bekommen auch selbst erstellte Artikel ein passendes Bild, ohne Foto.',
+      'Das angetippte Symbol erscheint sofort in der Vorschau und ersetzt ein vorher gewähltes eigenes Bild. Foto und Galerie gibt es weiterhin.',
+    ],
+  },
+  {
     version: '1.14.0', titel: 'Menge bei der Symbol-Auswahl',
     punkte: [
       'Wer in der Symbol-Auswahl 🧺 einen Artikel antippt, bekommt jetzt gleich das Fenster für die Menge – auf dem Handy mit Zahlentastatur. Einheit und Kategorie lassen sich dort mit einstellen.',

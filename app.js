@@ -1,7 +1,7 @@
 import { merge, sameDoc, emptyDoc } from './merge.js';
 import { SORTS, catOrder, ordnen, verschieben } from './sort.js';
 import { VERSION, neuer } from './version.js';
-import { KAT_LISTE, wirksamerKatalog, sucheKat, symbolFuer, eigeneArtikel, ausgeblendet,
+import { ALLE_SYMBOLE, KAT_LISTE, wirksamerKatalog, sucheKat, symbolFuer, eigeneArtikel, ausgeblendet,
   KATG_LISTE, wirksameKategorien, AUFFANG, KSET_LISTE, STANDARD_SET, kategorienListen, katgId } from './catalog.js';
 import { AENDERUNGEN } from './changelog.js';
 import { zerlegen, normiert } from './sprache.js';
@@ -247,6 +247,20 @@ const katVorschau = () => {
   $('katBildWeg').hidden = !katBild;
 };
 $('katIcon').addEventListener('input', katVorschau);
+// Vorhandene Symbole zum Antippen; Antippen ersetzt auch ein eigenes Bild
+function katSymbole() {
+  const ist = $('katIcon').value.trim();
+  $('katSymbole').replaceChildren(...ALLE_SYMBOLE.map(s => {
+    const b = el('button', { type: 'button', textContent: s, className: s === ist && !katBild ? 'on' : '', ariaLabel: 'Symbol ' + s });
+    b.onclick = () => { $('katIcon').value = s; katBild = null; katVorschau(); katSymbole(); };
+    return b;
+  }));
+}
+$('katSymbolWahl').onclick = () => {
+  const auf = $('katSymbole').hidden;
+  $('katSymbole').hidden = !auf; $('katSymbolWahl').ariaExpanded = String(auf);
+  if (auf) katSymbole();
+};
 $('katBildWahl').onclick = () => $('katBildDatei').click();
 $('katFoto').onclick = () => $('katFotoDatei').click(); // öffnet direkt die Kamera (am PC: Dateiauswahl)
 $('katBildWeg').onclick = () => { katBild = null; katVorschau(); };
@@ -265,6 +279,7 @@ function katBearbeiten(e) {
   $('katCat').replaceChildren(...catOrder(doc.lists[cur], CATS).map(c => el('option', { value: c, textContent: katName(c) })));
   $('katCat').value = CATS.includes(e.cat) ? e.cat : 'Sonstiges';
   $('katDel').hidden = !!e.neu;
+  $('katSymbole').hidden = true; $('katSymbolWahl').ariaExpanded = 'false';
   $('katDlg').returnValue = '';
   $('katDlg').showModal();
 }
