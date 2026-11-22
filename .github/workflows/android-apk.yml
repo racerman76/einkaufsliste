@@ -98,7 +98,7 @@ jobs:
       - name: Web-Dateien nach www kopieren
         run: |
           mkdir -p www
-          cp -r index.html app.js merge.js sort.js version.js catalog.js changelog.js sprache.js style.css manifest.webmanifest icons www/
+          cp -r index.html app.js merge.js sort.js version.js catalog.js changelog.js sprache.js style.css manifest.webmanifest manifest-lokal.webmanifest icons www/
 
       - name: Einrichtungslink einbauen (Secret EINRICHTUNGSLINK)
         env:
@@ -117,18 +117,6 @@ jobs:
           npx cap add android
           npx cap sync android
 
-      - name: App-Symbol und Versionsnummer setzen
-        run: |
-          RES=android/app/src/main/res
-          rm -rf $RES/mipmap-anydpi-v26
-          for d in $RES/mipmap-*dpi; do
-            cp icons/icon-192.png $d/ic_launcher.png
-            cp icons/icon-192.png $d/ic_launcher_round.png
-          done
-          sed -i -E "s/versionCode [0-9]+/versionCode ${{ github.run_number }}/" android/app/build.gradle
-          sed -i -E "s/versionName \"[^\"]*\"/versionName \"$VERSION\"/" android/app/build.gradle
-          grep -E "versionCode|versionName" android/app/build.gradle
-
       # Gleicher Signierschlüssel bei jedem Build, sonst meldet Android beim Update "App nicht installiert".
       # Der Schlüssel liegt im Actions-Cache; der Job "schluessel-frisch-halten" greift alle 3 Tage darauf zu,
       # damit GitHub ihn nicht nach 7 Tagen ohne Zugriff löscht.
@@ -138,7 +126,7 @@ jobs:
           path: ~/einkauf-signatur.keystore
           key: einkauf-signatur-v1
 
-      - name: Signierschlüssel anlegen (nur beim allerersten Mal) und im Build verwenden
+      - name: Signierschlüssel anlegen (nur beim allerersten Mal)
         run: |
           KS=~/einkauf-signatur.keystore
           if [ ! -f "$KS" ]; then
@@ -147,36 +135,54 @@ jobs:
               -keyalg RSA -keysize 2048 -validity 20000 -dname "CN=Einkaufsliste,O=racerman76,C=DE"
           fi
           keytool -list -keystore "$KS" -storepass android | grep -i fingerprint
-          cat >> android/app/build.gradle <<EOF
 
-          android {
-              signingConfigs {
-                  debug {
-                      storeFile file("$KS")
-                      storePassword "android"
-                      keyAlias "einkauf"
-                      keyPassword "android"
-                  }
-              }
-              buildTypes { debug { signingConfig signingConfigs.debug } }
-          }
-          EOF
+      # Baut aus dem Android-Projekt eine APK: Symbol, Versionsnummer, Signatur setzen, dann Gradle
+      - name: Bau-Hilfsskript anlegen
+        run: |
+          cat > apk-bauen.sh <<'SKRIPT'
+          set -e
+          SYMBOL="$1"; ZIEL="$2"; KS=~/einkauf-signatur.keystore
+          RES=android/app/src/main/res
+          rm -rf $RES/mipmap-anydpi-v26
+          for d in $RES/mipmap-*dpi; do cp "$SYMBOL" $d/ic_launcher.png; cp "$SYMBOL" $d/ic_launcher_round.png; done
+          sed -i -E "s/versionCode [0-9]+/versionCode $RUN_NR/" android/app/build.gradle
+          sed -i -E "s/versionName \"[^\"]*\"/versionName \"$VERSION\"/" android/app/build.gradle
+          grep -E "applicationId|versionCode|versionName" android/app/build.gradle
+          printf '\nandroid {\n  signingConfigs { debug { storeFile file("%s"); storePassword "android"; keyAlias "einkauf"; keyPassword "android" } }\n  buildTypes { debug { signingConfig signingConfigs.debug } }\n}\n' "$KS" >> android/app/build.gradle
+          (cd android && ./gradlew assembleDebug --no-daemon)
+          cp android/app/build/outputs/apk/debug/app-debug.apk "$ZIEL"
+          SKRIPT
 
-      - name: APK bauen
-        run: cd android && ./gradlew assembleDebug --no-daemon
+      - name: APK bauen (GitHub-Version)
+        env:
+          RUN_NR: ${{ github.run_number }}
+        run: bash apk-bauen.sh icons/icon-192.png Einkaufsliste.apk
+
+      # Zweite, eigenständige App: speichert nur auf dem Gerät (kein GitHub, kein Token).
+      # Eigene App-ID → lässt sich neben der GitHub-Version installieren.
+      - name: APK bauen (lokale Version)
+        env:
+          RUN_NR: ${{ github.run_number }}
+        run: |
+          rm -rf android www/preset.json
+          sed -i 's#<head>#<head>\n  <script>window.EK_LOKAL = true;</script>#' www/index.html
+          grep -n "EK_LOKAL = true" www/index.html
+          node -e 'const fs=require("fs"),f="capacitor.config.json",c=JSON.parse(fs.readFileSync(f));c.appId+=".lokal";c.appName="Einkauf lokal";fs.writeFileSync(f,JSON.stringify(c,null,2))'
+          npx cap add android
+          npx cap sync android
+          bash apk-bauen.sh icons/lokal-192.png Einkaufsliste-lokal.apk
 
       # Jede Version bleibt als eigenes Release erhalten; die neueste ist "Latest",
-      # daher funktioniert .../releases/latest/download/Einkaufsliste.apk weiter.
+      # daher funktioniert .../releases/latest/download/Einkaufsliste.apk (bzw. Einkaufsliste-lokal.apk) weiter.
       - name: Als Release veröffentlichen
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          cp android/app/build/outputs/apk/debug/app-debug.apk Einkaufsliste.apk
           node release-text.mjs "$VERSION" > release-text.md
           if gh release view "v$VERSION" >/dev/null 2>&1; then
-            gh release upload "v$VERSION" Einkaufsliste.apk --clobber
+            gh release upload "v$VERSION" Einkaufsliste.apk Einkaufsliste-lokal.apk --clobber
           else
-            gh release create "v$VERSION" Einkaufsliste.apk --latest \
+            gh release create "v$VERSION" Einkaufsliste.apk Einkaufsliste-lokal.apk --latest \
               --title "Einkaufsliste $VERSION ($(TZ=Europe/Berlin date '+%d.%m.%Y %H:%M'))" \
               --notes-file release-text.md
           fi
