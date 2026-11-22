@@ -67,17 +67,8 @@ Download: https://github.com/racerman76/einkaufsliste/releases/latest/download/E
 
 ## Versionen und Updates
 - Jede Version wird in `changelog.js` beschrieben (Titel + Stichpunkte, neueste oben). Daraus entstehen die Release-Texte auf GitHub und das Fenster „Neuigkeiten“ unter ⚙. Der Selbsttest prüft, dass der neueste Eintrag zur Nummer in `version.js` passt.
-- Die Versionsnummer steht in `version.js` (`VERSION = '1.19.0'`). **Bei jeder Änderung an der App hochzählen** – nur dann baut GitHub ein neues Release `v<Version>`. Änderungen ohne neue Nummer (z. B. nur README) erzeugen kein Release.
+- Die Versionsnummer steht in `version.js` (`VERSION = '1.20.0'`). **Bei jeder Änderung an der App hochzählen** – nur dann baut GitHub ein neues Release `v<Version>`. Änderungen ohne neue Nummer (z. B. nur README) erzeugen kein Release.
 - In der App unter ⚙ steht die aktuelle Version, dazu „Nach Updates suchen“. Beim Start prüft die App selbst und zeigt oben eine Leiste, wenn es eine neuere Version gibt:
   - **Android:** „Herunterladen“ lädt die neue APK im Browser – Datei antippen und über die alte installieren.
   - **iPhone/PC:** „Neu laden“ holt die neue Version.
 - Eine ältere Version auf Android installieren: erst die App deinstallieren (die Liste bleibt auf GitHub).
-
-## Lokale Version (ohne GitHub)
-
-Zusätzlich zur GitHub-Version gibt es die **Einkaufsliste lokal** – alle Daten bleiben nur auf dem Gerät, kein Konto, kein Token, kein Teilen.
-
-- **Android:** https://github.com/racerman76/einkaufsliste/releases/latest/download/Einkaufsliste-lokal.apk – eigene App „Einkauf lokal“ (blaues Symbol), lässt sich neben der GitHub-Version installieren.
-- **PC / iPhone (Browser):** https://racerman76.github.io/einkaufsliste/?lokal – Daten liegen im Browser dieses Geräts.
-- **Sichern:** ⚙ → „💾 Sichern“ speichert alles als Datei, „📂 Einlesen“ übernimmt eine Sicherung (der neuere Stand je Eintrag gewinnt). Damit lassen sich Daten zwischen Geräten und zwischen beiden Versionen übertragen.
-

@@ -1,7 +1,7 @@
 // App-Dateien offline vorhalten. GitHub-API-Aufrufe (andere Domain) laufen nie über den Cache.
-const CACHE = 'einkauf-v34'; // bei jeder Code-Änderung hochzählen (wie VERSION in version.js), damit Handys die neue Version laden
-const FILES = ['./', 'index.html', 'app.js', 'merge.js', 'sort.js', 'version.js', 'catalog.js', 'changelog.js', 'sprache.js', 'style.css', 'manifest.webmanifest', 'manifest-lokal.webmanifest',
-  'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png', 'icons/lokal-192.png', 'icons/lokal-512.png', 'icons/lokal-apple-touch-icon.png'];
+const CACHE = 'einkauf-v35'; // bei jeder Code-Änderung hochzählen (wie VERSION in version.js), damit Handys die neue Version laden
+const FILES = ['./', 'index.html', 'app.js', 'merge.js', 'sort.js', 'version.js', 'catalog.js', 'changelog.js', 'sprache.js', 'style.css', 'manifest.webmanifest',
+  'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 
 self.addEventListener('install', e => e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting())));
 self.addEventListener('activate', e => e.waitUntil(

@@ -3,6 +3,13 @@
 // Aus diesen Texten entstehen die Release-Beschreibungen auf GitHub und das Fenster „Neuigkeiten“ in der App.
 export const AENDERUNGEN = [
   {
+    version: '1.20.0', titel: 'Lokale Version wieder entfernt',
+    punkte: [
+      'Die in 1.19.0 eingebaute lokale Version (ohne GitHub) ist wieder herausgenommen. Die App ist wieder genau so wie in Version 1.18.0 – Daten weiter auf GitHub, gemeinsam mit der Familie.',
+      'Auch die Knöpfe „Sichern“ und „Einlesen“ in den Einstellungen sind wieder weg. An deinen Listen ändert sich nichts.',
+    ],
+  },
+  {
     version: '1.19.0', titel: 'Neu: lokale Version ohne GitHub',
     punkte: [
       'Es gibt jetzt zusätzlich die „Einkaufsliste lokal“: Sie speichert alles nur auf dem eigenen Gerät – ohne GitHub-Konto, ohne Token, ohne Internet. Teilen mit der Familie gibt es dort nicht.',
