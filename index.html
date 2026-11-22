@@ -11,6 +11,17 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon-192.png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <script>
+    // Lokale Version: Daten nur auf diesem Gerät. Web: Adresse mit ?lokal, Android: eigene App (EK_LOKAL beim Bauen gesetzt)
+    if (window.EK_LOKAL || /[?&]lokal\b/.test(location.search)) {
+      window.EK_LOKAL = true; document.title = 'Einkaufsliste lokal';
+      const setze = (sel, attr, wert) => document.querySelector(sel).setAttribute(attr, wert);
+      setze('link[rel=manifest]', 'href', 'manifest-lokal.webmanifest');
+      setze('link[rel=icon]', 'href', 'icons/lokal-192.png');
+      setze('link[rel=apple-touch-icon]', 'href', 'icons/lokal-apple-touch-icon.png');
+      setze('meta[name=apple-mobile-web-app-title]', 'content', 'Einkauf lokal');
+    }
+  </script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -138,16 +149,27 @@
   <dialog id="setDlg">
     <form id="setForm" method="dialog">
       <h2>Einstellungen</h2>
+      <p id="lokalInfo" class="muted" hidden>Lokale Version: Alles wird nur auf diesem Gerät gespeichert – kein GitHub, kein Teilen. Mit „Sichern“ regelmäßig eine Sicherung anlegen.</p>
       <label>Dein Name <input id="cfgUser" placeholder="z. B. Thomas"></label>
+      <div id="ghBox">
       <label>GitHub-Konto (Besitzer) <input id="cfgOwner" placeholder="GitHub-Konto" required></label>
       <label>Daten-Repo <input id="cfgRepo" placeholder="einkaufsliste-daten" required></label>
       <label>Zugriffstoken oder Einrichtungslink <input id="cfgToken" type="password" placeholder="github_pat_… oder Link einfügen" required></label>
       <p class="muted">Das Token bleibt nur auf diesem Gerät gespeichert.</p>
+      </div>
       <div class="row">
         <button value="save" class="primary">Speichern</button>
         <button value="cancel" formnovalidate class="secondary">Abbrechen</button>
       </div>
       <button type="button" id="copyLink" class="secondary">Einrichtungslink für Familie kopieren</button>
+      <hr>
+      <h3>Sicherung</h3>
+      <div class="row">
+        <button type="button" id="sichern" class="secondary">💾 Sichern</button>
+        <button type="button" id="wiederBtn" class="secondary">📂 Einlesen</button>
+      </div>
+      <input type="file" id="wiederDatei" accept=".json,application/json" hidden>
+      <p class="muted">„Sichern“ speichert alle Listen als Datei. „Einlesen“ übernimmt eine Sicherung – vorhandene Einträge bleiben erhalten, jeweils der neuere Stand gewinnt. So lassen sich Daten auch zwischen PC, Handy und den beiden App-Versionen übertragen.</p>
       <hr>
       <p id="verText" class="muted"></p>
       <button type="button" id="checkUpd" class="secondary">Nach Updates suchen</button>

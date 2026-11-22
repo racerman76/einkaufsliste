@@ -14,24 +14,27 @@ const $ = id => document.getElementById(id);
 const uid = () => crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2);
 
 // ---------- Lokaler Zustand (bleibt offline erhalten) ----------
-const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
-let doc = load('ek-doc', emptyDoc());
-let sha = load('ek-sha', null);
-let dirty = load('ek-dirty', false);
-let cfg = load('ek-cfg', {});
-let cur = localStorage.getItem('ek-cur');
+// Lokale Version (index.html setzt EK_LOKAL): eigene Speicherschlüssel, kein Abgleich mit GitHub
+const LOKAL = !!window.EK_LOKAL;
+const K = k => (LOKAL ? 'ekl-' : 'ek-') + k;
+const load = (k, d) => { try { return JSON.parse(localStorage.getItem(K(k))) ?? d; } catch { return d; } };
+let doc = load('doc', emptyDoc());
+let sha = load('sha', null);
+let dirty = load('dirty', false);
+let cfg = load('cfg', {});
+let cur = localStorage.getItem(K('cur'));
 const save = () => {
-  localStorage.setItem('ek-doc', JSON.stringify(doc));
-  localStorage.setItem('ek-sha', JSON.stringify(sha));
-  localStorage.setItem('ek-dirty', JSON.stringify(dirty));
+  localStorage.setItem(K('doc'), JSON.stringify(doc));
+  localStorage.setItem(K('sha'), JSON.stringify(sha));
+  localStorage.setItem(K('dirty'), JSON.stringify(dirty));
 };
 
 // Einrichtungslink: #setup=<base64 JSON> (Hash wird nie an einen Server geschickt)
 const parseSetup = s => JSON.parse(decodeURIComponent(escape(atob(s.split('#setup=')[1].trim()))));
-if (location.hash.startsWith('#setup=')) {
+if (location.hash.startsWith('#setup=') && !LOKAL) {
   try {
     cfg = { ...parseSetup(location.hash), user: cfg.user || '' };
-    localStorage.setItem('ek-cfg', JSON.stringify(cfg));
+    localStorage.setItem(K('cfg'), JSON.stringify(cfg));
   } catch { alert('Einrichtungslink ist ungültig.'); }
   history.replaceState(null, '', location.pathname);
 }
@@ -52,7 +55,7 @@ function ensureList() {
     dirty = true; save();
   }
   if (!doc.lists[cur] || doc.lists[cur].deleted) cur = lists()[0].id;
-  localStorage.setItem('ek-cur', cur);
+  localStorage.setItem(K('cur'), cur);
 }
 
 function addItem(name, qty, cat) {
@@ -324,6 +327,7 @@ let syncing = false, timer = null;
 function scheduleSync(ms) { clearTimeout(timer); timer = setTimeout(sync, ms); }
 
 async function sync() {
+  if (LOKAL) return status('ok', 'Lokal');
   if (!cfg.token || !cfg.owner || !cfg.repo) return status('err', 'Einrichten');
   if (!navigator.onLine) return status(dirty ? 'busy' : '', 'Offline');
   if (syncing) return scheduleSync(1000);
@@ -351,7 +355,7 @@ $('addForm').onsubmit = e => {
   addItem($('name').value, $('qty').value.trim(), $('cat').value);
   $('name').value = ''; $('qty').value = ''; $('name').focus();
 };
-$('listSel').onchange = e => { cur = e.target.value; localStorage.setItem('ek-cur', cur); render(); };
+$('listSel').onchange = e => { cur = e.target.value; localStorage.setItem(K('cur'), cur); render(); };
 $('clearDone').onclick = () => {
   const t = Date.now();
   for (const i of items()) if (i.done) Object.assign(i, { deleted: true, updatedAt: t });
@@ -484,6 +488,9 @@ $('settingsBtn').onclick = () => {
   const pagesOwner = location.hostname.endsWith('.github.io') ? location.hostname.split('.')[0] : '';
   $('cfgUser').value = cfg.user || ''; $('cfgOwner').value = cfg.owner || pagesOwner;
   $('cfgRepo').value = cfg.repo || 'einkaufsliste-daten'; $('cfgToken').value = cfg.token || '';
+  // Lokal: GitHub-Felder weg (deaktiviert → keine Pflichtfelder)
+  $('ghBox').hidden = $('copyLink').hidden = LOKAL; $('lokalInfo').hidden = !LOKAL;
+  $('ghBox').querySelectorAll('input').forEach(i => i.disabled = LOKAL);
   $('setDlg').showModal();
 };
 const tokenOk = t => /^(github_pat_|ghp_)\w+$/.test(t);
@@ -497,11 +504,40 @@ $('cfgToken').addEventListener('input', e => {
 });
 $('setDlg').addEventListener('close', () => {
   if ($('setDlg').returnValue !== 'save') return;
+  if (LOKAL) { cfg = { user: $('cfgUser').value.trim() }; localStorage.setItem(K('cfg'), JSON.stringify(cfg)); return render(); }
   const owner = $('cfgOwner').value.trim(), repo = $('cfgRepo').value.trim(), token = $('cfgToken').value.trim();
   if (cfg.owner !== owner || cfg.repo !== repo) { sha = null; dirty = true; } // anderes Repo: lokalen Stand dorthin übernehmen
   cfg = { user: $('cfgUser').value.trim(), owner, repo, token };
-  localStorage.setItem('ek-cfg', JSON.stringify(cfg)); save(); render(); sync();
+  localStorage.setItem(K('cfg'), JSON.stringify(cfg)); save(); render(); sync();
 });
+
+// ---------- Sicherung (Datei) ----------
+$('sichern').onclick = async () => {
+  const name = `einkaufsliste-${LOKAL ? 'lokal-' : ''}${new Date().toISOString().slice(0, 10)}.json`;
+  const text = JSON.stringify(doc, null, 1);
+  try {
+    if (isApk) {
+      // Android-App: Datei im App-Cache ablegen und über „Teilen“ speichern (Dateien, Drive, Mail …)
+      const C = window.Capacitor;
+      const { uri } = await C.nativePromise('Filesystem', 'writeFile', { path: name, data: text, directory: 'CACHE', encoding: 'utf8' });
+      await C.nativePromise('Share', 'share', { title: 'Einkaufsliste – Sicherung', url: uri, dialogTitle: 'Sicherung speichern oder senden' });
+    } else {
+      const a = el('a', { href: URL.createObjectURL(new Blob([text], { type: 'application/json' })), download: name });
+      document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+    }
+  } catch (e) { if (!/cancel/i.test(e?.message || '')) alert('Sichern hat nicht geklappt: ' + (e?.message || e)); }
+};
+$('wiederBtn').onclick = () => $('wiederDatei').click();
+$('wiederDatei').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = '';
+  if (!f) return;
+  let neu;
+  try { neu = JSON.parse(await f.text()); } catch {}
+  if (!neu || typeof neu.items !== 'object' || typeof neu.lists !== 'object') return alert('Das ist keine Sicherung der Einkaufsliste.');
+  doc = merge(doc, neu); dirty = true; save(); render(); sync();
+  const n = Object.values(neu.lists).filter(l => !l.deleted).length;
+  toast(`Sicherung übernommen: ${n} ${n === 1 ? 'Liste' : 'Listen'}.`);
+};
 $('copyLink').onclick = async () => {
   const c = { owner: $('cfgOwner').value.trim(), repo: $('cfgRepo').value.trim(), token: $('cfgToken').value.trim() };
   if (!c.owner || !c.repo || !tokenOk(c.token)) return alert('Erst Konto, Repo und ein gültiges Token (github_pat_…) eintragen.');
@@ -599,7 +635,7 @@ $('micBtn').onclick = () => sprechen();
 const APP_REPO = 'racerman76/einkaufsliste';
 const isApk = !!window.Capacitor?.isNativePlatform?.();
 let updVer = null, updBody = '';
-$('verText').textContent = `Version ${VERSION} (${isApk ? 'Android-App' : 'Web-App'})`;
+$('verText').textContent = `Version ${VERSION} (${isApk ? 'Android-App' : 'Web-App'}${LOKAL ? ', lokal' : ''})`;
 
 async function checkUpdate(manual) {
   try {
@@ -645,7 +681,7 @@ $('updBtn').onclick = async () => {
       'Danach oben die Download-Meldung antippen und „Installieren“ wählen.';
     $('updBtn').disabled = true; $('updBtn').textContent = 'Lädt …';
     setTimeout(() => { $('updBtn').disabled = false; $('updBtn').textContent = 'Nochmal laden'; }, 60000);
-    location.href = `https://github.com/${APP_REPO}/releases/download/v${updVer}/Einkaufsliste.apk`;
+    location.href = `https://github.com/${APP_REPO}/releases/download/v${updVer}/Einkaufsliste${LOKAL ? '-lokal' : ''}.apk`;
   } else {
     try { await (await navigator.serviceWorker?.getRegistration())?.update(); } catch {}
     location.reload();
@@ -658,9 +694,9 @@ setInterval(() => { if (!document.hidden) sync(); }, 20000);
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {}); // in der Android-App gibt es kein sw.js
 
 // Android-App: beim Bauen eingebauter Einrichtungslink (preset.json, nur in der APK vorhanden)
-if (!cfg.token) try {
+if (!cfg.token && !LOKAL) try {
   const r = await fetch('preset.json');
-  if (r.ok) { cfg = { ...parseSetup((await r.json()).link), user: cfg.user || '' }; localStorage.setItem('ek-cfg', JSON.stringify(cfg)); }
+  if (r.ok) { cfg = { ...parseSetup((await r.json()).link), user: cfg.user || '' }; localStorage.setItem(K('cfg'), JSON.stringify(cfg)); }
 } catch {}
 
 // ---------- Fenster verschieben ----------
@@ -697,5 +733,5 @@ function verschiebbar(dlg) {
 ['editDlg', 'setDlg', 'listDlg', 'newsDlg', 'katDlg'].forEach(id => verschiebbar($(id)));
 
 render();
-if (!cfg.token) $('settingsBtn').click(); else sync();
+if (!cfg.token && !LOKAL) $('settingsBtn').click(); else sync();
 checkUpdate(false);

@@ -3,6 +3,16 @@
 // Aus diesen Texten entstehen die Release-Beschreibungen auf GitHub und das Fenster „Neuigkeiten“ in der App.
 export const AENDERUNGEN = [
   {
+    version: '1.19.0', titel: 'Neu: lokale Version ohne GitHub',
+    punkte: [
+      'Es gibt jetzt zusätzlich die „Einkaufsliste lokal“: Sie speichert alles nur auf dem eigenen Gerät – ohne GitHub-Konto, ohne Token, ohne Internet. Teilen mit der Familie gibt es dort nicht.',
+      'Handy: eigene App „Einkauf lokal“ mit blauem Symbol (Download Einkaufsliste-lokal.apk). Sie lässt sich neben der bisherigen App installieren; beide haben getrennte Daten.',
+      'PC: dieselbe Webseite mit „?lokal“ am Ende der Adresse. Daten liegen im Browser dieses PCs.',
+      'Neu in beiden Versionen unter ⚙: „💾 Sichern“ speichert alle Listen als Datei, „📂 Einlesen“ liest eine Sicherung wieder ein. Vorhandene Einträge bleiben erhalten, jeweils der neuere Stand gewinnt – so lassen sich Daten auch zwischen PC, Handy und den beiden Versionen übertragen.',
+      'Die bisherige GitHub-Version bleibt unverändert und bekommt weiter alle Updates.',
+    ],
+  },
+  {
     version: '1.18.0', titel: 'Einkaufswagen als Standardsymbol',
     punkte: [
       'Selbst angelegte Artikel ohne eigenes Symbol zeigen jetzt immer den Einkaufswagen 🛒 – in der Liste und in der Symbol-Auswahl. Bisher bekamen sie das Symbol ihrer Kategorie (z. B. 🧽 für Haushalt), was leicht mit anderen Artikeln zu verwechseln war.',
